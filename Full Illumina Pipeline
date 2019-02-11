@@ -1,0 +1,158 @@
+:
+##
+# Pipeline for Illumina datasets of RNA-Seq
+# Assumes that data uploaded to NCBI is already devoid of tags, low quality sequences and empty reads.
+# Will extract the .fastq file, align it to a genome index (that has to be built previously),
+# will convert the .sam file into a .bam and then run two counting tools (raw counts and TPM/FPKM)
+# When appropriate it will create logs of the tools.
+#
+# fastq-dump > hisat2 > samtools > featurecounts > stringtie
+#
+# Marta Silva, ITQB
+# marcsilva@itqb.unl.pt
+#
+#############fastq-dump#############
+#
+# Built using:
+# https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=fastq-dump
+# https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=std
+#
+# Downloads .fastq files from a list of SRA numbers
+#
+# Requires the download of the SRA Toolkit. To do so remotely, use command wget followed by the URL.
+# After the download, alter the first line PATH to direct to the folder where fastq-dump is located.
+#
+# When using, indicate path to the command followed by the list of SRA numbers.
+# e.g. ./dwnfastq.sh listSRAnumbers.txt
+#
+   PATH=$PATH:~/Documents/tools/fastq-dump/bin/
+   export PATH #alter to match localization of fastq-dump
+
+counter=0
+for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
+do
+   counter=$((counter+1))
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter ' FASTQ ' $SRA_ID '~~~~~~~~~~~~'
+
+   fastq-dump -O /data/biodata/fastqfiles/$SRA_ID $SRA_ID
+
+done
+
+############hisat2#############
+#
+# Built using:
+# http://ccb.jhu.edu/software/hisat2/manual.shtml#running-hisat2
+#
+# Runs HISAT2 on the .fastq files.
+# Aligns to a genome. Outputs a .sam file.
+#
+# Necessary to build an index using hisat2-build
+#
+# Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
+# This is insanely ugly and an alternative is essential.
+
+PATH=$PATH:/data/biodata/HISAT2/
+export PATH #alter to match the localization of the hisat2 tool
+counter=0
+for direc in /data/biodata/fastqfiles/SRR598* #the beginning of the illumina datasets' SRA is specified
+do
+   counter=$((counter+1))
+   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /data/biodata/QSuberAlign/
+   mkdir -p $PROJECTNAME #creates folder for the .sam file
+   cd $PROJECTNAME
+   mkdir -p logs #creates folder for the logs
+   cd $direc
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
+
+   hisat2 -t --summary-file /data/biodata/QSuberAlign/$PROJECTNAME/logs/loghisat2$FILENAME -x /data/biodata/rawdata/hisat/qsuber2018 -1 *1.fastq -2 *2.fastq -S /data/biodata/QSuberAlign/$PROJECTNAME/hisat$FILENAME.sam
+
+   cd ..
+done
+
+#############sam-tools#############
+#
+# Will sort and convert the .sam file into a .bam file.
+#
+
+counter=0
+for direc in /data/biodata/fastqfiles/SRR598* #beggining of illumina SRA 
+do
+   counter=$((counter+1))
+   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /data/biodata/QSuberAlign/
+   cd $PROJECTNAME
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'SAMTOOLS ~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...thinking...'
+   echo ' '
+
+   samtools view -u *$FILENAME.sam | samtools sort -o st$FILENAME.bam
+
+   cd ..
+done
+
+#############featurecounts#############
+#
+# Built using:
+# http://bioinf.wehi.edu.au/featureCounts/
+#
+# Will give the raw counts of the .bam file
+#
+
+   PATH=$PATH:~/Documents/tools/SubRead/bin/
+   export PATH #alter to match the localization of the featureCounts tool
+
+counter=0
+for direc in /data/biodata/QSuberAlign/SRR598* #beggining of illumina SRA
+do
+   cd $direc
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+   counter=$((counter+1))
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+
+   featureCounts -a /data/biodata/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
+# -a , annotation (gtf/gff)
+# -g , category for the sorting of the alignment (gene_id/gene_name)
+# -o , output as a .txt file
+# 2>&1 | tee , will append to a log file and print it on the screen
+
+   cd ..
+done
+
+#############stringtie#############
+#
+# Built using:
+# https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+#
+# Will give the TPM and FPKM in an abundance file
+# Outputs a .gtf file
+# If more than one file is inputed the end file will not have any separation per dataset.
+# If dataset separated results are important stringtie should be run individually for each dataset
+#
+# Needs the indication of a reference genome as a .gtf file
+
+PATH=$PATH:/data/biodata/StringTie
+export PATH #alter to match the localization of the stringtie tool
+
+counter=0
+for direc in /data/biodata/QSuberAlign/SRR598* #beginning of illumina dataset
+do
+   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd $direc
+   counter=$((counter+1))
+   echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '~~~~~~~~~~~~~'
+
+   stringtie /data/biodata/QSuberAlign/$PROJECTNAME/*.bam -A /data/biodata/QSuberAlign/$PROJECTNAME/abundance$PROJECTNAME -G /data/biodata/rawdata/CorkOak1.0_genomic.gtf -o /data/biodata/QSuberAlign/$PROJECTNAME/$PROJECTNAME.gtf
+
+   cd ..
+done
+
