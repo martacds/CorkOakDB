@@ -2,33 +2,31 @@
 ##
 #
 # Pipeline for 454 datasets of RNA-Seq
+# Will extract the .fastq files from a list of SRA numbers, predicts and removes the tags, removes low quality sequences,
+# removes right 5% (Ns), maps to a genome built previously, converts to a .bam file and runs two counting tools
+# (raw counts and TPM/FPKM).
+# When appropriate it will create logs of the tools.
 #
-# Includes:
-# fastq-dump : Download of .fastq files from a SRA numebr list
-# tagCleaner : Predicts and removes tags
-# Sickle : Removes low quality sequences
-# PrinSeq : Removes 5% of the right end
-# GMAP : Maps to a genome (that has to be built previously)
-# Samtools : Conversion to a .bam file
-# FeatureCounts , StringTie : Two counting tools (raw counts and TPM/FPKM)
+# fastq-dump > tagcleaner > sickle > prinseq > gmap > samtools > featurecounts > stringtie
 #
-# When appropriate it will create logs of the tools
-#
-# Marta Silva
+# Marta Silva, ITQB
 # marcsilva@itqb.unl.pt
 #
-#############fastq-dump############
+#############fastq-dump#############
 #
 # Built using:
 # https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=fastq-dump
 # https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=std
 #
-# Extracts the .fastq files from a list of SRA numbers (letters included).
+# Downloads .fastq files from a list of SRA numbers
 #
-# Requires the download of the SRA toolkit. 
-# When using, indicate the command followed by the .txt file with the SRA numbers (one per line).
-
-   PATH=$PATH:~/Documents/tools/fastq-dump/bin/
+# Requires the download of the SRA Toolkit. To do so remotely, use command wget followed by the URL.
+# After the download, alter the first line PATH to direct to the folder where fastq-dump is located.
+#
+# When using, indicate path to the command followed by the list of SRA numbers.
+# e.g. ./dwnfastq.sh listSRAnumbers.txt
+#
+   PATH=$PATH:/data/biodata/tools/fastq-dump/bin/
    export PATH #alter to match localization of fastq-dump
 
 counter=0
@@ -42,7 +40,7 @@ do
    
 done
 
-#############tagcleaner##############
+#############tagcleaner#############
 #
 # Built using:
 # http://tagcleaner.sourceforge.net/manual.html#STANDALONE
@@ -56,7 +54,7 @@ done
 # One percentages log per dataset
 #
 
-   alias tagcleaner='perl ~/Documents/tools/TagCleaner/tagcleaner.pl'
+   alias tagcleaner='perl /data/biodata/tools/TagCleaner/tagcleaner.pl'
 #Creates an alias, to make the command bellow easier
 
 counter=0
@@ -141,7 +139,7 @@ done
 # Runs Sickle on the .fastq files form tagcleaner.
 # Improves the overall quality of the dataset
 
-   PATH=$PATH:~/Documents/tools/sickle-master/
+   PATH=$PATH:/data/biodata/tools/sickle-master/
    export PATH #alter to match localization of sickle tool
 
 counter=0
@@ -186,7 +184,7 @@ done
 # Trims a % form the right (set as 5), which will remove the Ns from the end of the sequence
 # Outputs good and bad sequences, and creates a log
 
-   PATH=$PATH:~/Documents/tools/PrinSeq
+   PATH=$PATH:/data/biodata/tools/PrinSeq
    export PATH #alter path to match the localization of the prinseq tool
 
    alias prinseq='perl ~/Documents/tools/PrinSeq/prinseq-lite.pl'
@@ -241,7 +239,7 @@ done
 "
 # Necessary to build the genome using gmap_build
 
-   PATH=$PATH:/data/biodata/GMAP/src/
+   PATH=$PATH:/data/biodata/tools/GMAP/src/
    export PATH #alter to match the localization of the gmap tool
 
 mkdir /data/biodata/QSuberAlign #creates the folder for the mapping results
@@ -325,7 +323,7 @@ done
 # http://bioinf.wehi.edu.au/featureCounts/
 #
 
-   PATH=$PATH:~/Documents/tools/SubRead/bin/
+   PATH=$PATH:/data/biodata/tools/SubRead/bin/
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
@@ -356,7 +354,7 @@ done
 #
 # Needs the indication of a reference genome as a .gtf file
 
-   PATH=$PATH:/data/biodata/StringTie
+   PATH=$PATH:/data/biodata/tools/StringTie
    export PATH #alter to match the localization of the stringtie tool
 
 counter=0
