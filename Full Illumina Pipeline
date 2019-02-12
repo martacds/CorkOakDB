@@ -25,7 +25,7 @@
 # When using, indicate path to the command followed by the list of SRA numbers.
 # e.g. ./dwnfastq.sh listSRAnumbers.txt
 #
-   PATH=$PATH:/data/biodata/tools/fastq-dump/bin/
+   PATH=$PATH:/home/martasilva/tools/fastq-dump/bin/
    export PATH #alter to match localization of fastq-dump
 
 counter=0
@@ -35,7 +35,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ ' $SRA_ID '~~~~~~~~~~~~'
 
-   fastq-dump -O /data/biodata/fastqfiles/$SRA_ID $SRA_ID
+   fastq-dump -O /home/martasilva/fastqfiles/$SRA_ID $SRA_ID
 
 done
 
@@ -52,23 +52,26 @@ done
 # Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
 # This is insanely ugly and an alternative is essential.
 
-PATH=$PATH:/data/biodata/tools/HISAT2/
-export PATH #alter to match the localization of the hisat2 tool
+   PATH=$PATH:/home/martasilva/tools/HISAT2/
+   export PATH #alter to match the localization of the hisat2 tool
+
 counter=0
-for direc in /data/biodata/fastqfiles/SRR598* #the beginning of the illumina datasets' SRA is specified
+for direc in /home/martasilva/fastqfiles/SRR598* #the beginning of the illumina datasets' SRA is specified
 do
    counter=$((counter+1))
    FILENAME=`echo $direc | cut --delimiter=/ -f5`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd /data/biodata/QSuberAlign/
+   cd /home/martasilva/
+   mkdir -p QSuberAlign
+   cd /home/martasilva/QSuberAlign/
    mkdir -p $PROJECTNAME #creates folder for the .sam file
    cd $PROJECTNAME
    mkdir -p logs #creates folder for the logs
    cd $direc
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
 
-   hisat2 -t --summary-file /data/biodata/QSuberAlign/$PROJECTNAME/logs/loghisat2$FILENAME -x /data/biodata/rawdata/hisat/qsuber2018 -1 *1.fastq -2 *2.fastq -S /data/biodata/QSuberAlign/$PROJECTNAME/hisat$FILENAME.sam
+   hisat2 -t --summary-file /home/martasilva/QSuberAlign/$PROJECTNAME/logs/loghisat2$FILENAME -x /home/martasilva/hisat/qsuber2018 -1 *1.fastq -2 *2.fastq -S /home/martasilva/QSuberAlign/$PROJECTNAME/hisat$FILENAME.sam
 
    cd ..
 done
@@ -79,13 +82,13 @@ done
 #
 
 counter=0
-for direc in /data/biodata/fastqfiles/SRR598* #beggining of illumina SRA 
+for direc in /home/martasilva/fastqfiles/SRR598* #beggining of illumina SRA 
 do
    counter=$((counter+1))
    FILENAME=`echo $direc | cut --delimiter=/ -f5`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd /data/biodata/QSuberAlign/
+   cd /home/martasilva/QSuberAlign/
    cd $PROJECTNAME
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'SAMTOOLS ~~~~~~~~~~~~'
    echo ' '
@@ -105,11 +108,11 @@ done
 # Will give the raw counts of the .bam file
 #
 
-   PATH=$PATH:/data/biodata/tools/SubRead/bin/
+   PATH=$PATH:/home/martasilva/tools/SubRead/bin/
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /data/biodata/QSuberAlign/SRR598* #beggining of illumina SRA
+for direc in /home/martasilva/QSuberAlign/SRR598* #beggining of illumina SRA
 do
    cd $direc
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
@@ -117,7 +120,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
-   featureCounts -a /data/biodata/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
+   featureCounts -a /home/martasilva/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
 # -a , annotation (gtf/gff)
 # -g , category for the sorting of the alignment (gene_id/gene_name)
 # -o , output as a .txt file
@@ -138,11 +141,11 @@ done
 #
 # Needs the indication of a reference genome as a .gtf file
 
-PATH=$PATH:/data/biodata/tools/StringTie
+PATH=$PATH:/home/martasilva/tools/StringTie
 export PATH #alter to match the localization of the stringtie tool
 
 counter=0
-for direc in /data/biodata/QSuberAlign/SRR598* #beginning of illumina dataset
+for direc in /home/martasilva/QSuberAlign/SRR598* #beginning of illumina dataset
 do
    FILENAME=`echo $direc | cut --delimiter=/ -f5`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
@@ -151,7 +154,7 @@ do
    counter=$((counter+1))
    echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '~~~~~~~~~~~~~'
 
-   stringtie /data/biodata/QSuberAlign/$PROJECTNAME/*.bam -A /data/biodata/QSuberAlign/$PROJECTNAME/abundance$PROJECTNAME -G /data/biodata/rawdata/CorkOak1.0_genomic.gtf -o /data/biodata/QSuberAlign/$PROJECTNAME/$PROJECTNAME.gtf
+   stringtie /home/martasilva/QSuberAlign/$PROJECTNAME/*.bam -A /home/martasilva/QSuberAlign/$PROJECTNAME/abundance$PROJECTNAME -G /home/martasilva/rawdata/CorkOak1.0_genomic.gtf -o /home/martasilva/QSuberAlign/$PROJECTNAME/$PROJECTNAME.gtf
 
    cd ..
 done
