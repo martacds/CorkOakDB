@@ -1,0 +1,21 @@
+for direc in /data/biodata/454Data/*
+do
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+   cd $PROJECTNAME
+   mkdir -p notag
+   mkdir -p sickle
+   mkdir -p prinseq
+   mkdir -p gmap
+   mkdir -p bam
+   mkdir -p featurecounts
+   mkdir -p stringtie
+
+   mv sickle* ./sickle
+   mv notag* ./notag
+   mv *.bam ./bam
+   mv *.sam ./gmap
+   mv abundance* ./stringtie
+   mv *.gtf ./stringtie
+   mv counts* ./featurecounts
+   mv ps* ./prinseq
+done
