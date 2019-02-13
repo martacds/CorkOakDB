@@ -25,17 +25,20 @@
 # When using, indicate path to the command followed by the list of SRA numbers.
 # e.g. ./dwnfastq.sh listSRAnumbers.txt
 #
-   PATH=$PATH:/home/martasilva/tools/fastq-dump/bin/
+   PATH=$PATH:/home/martasilva/tools/SRAtoolkit/bin/
    export PATH #alter to match localization of fastq-dump
 
 counter=0
 for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
 do
    counter=$((counter+1))
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   mkdir -p $PROJECTNAME
+   
    echo ' '
-   echo '~~~~~~~~~~~~' $counter ' FASTQ ' $SRA_ID '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ ' $SRA_ID '~~~~~~~~~~~~'
 
-   fastq-dump -O /home/martasilva/fastqfiles/$SRA_ID $SRA_ID
+   fastq-dump -O /home/martasilva/IlluminaData/$PROJECTNAME/$SRA_ID $SRA_ID
 
 done
 
@@ -56,22 +59,19 @@ done
    export PATH #alter to match the localization of the hisat2 tool
 
 counter=0
-for direc in /home/martasilva/fastqfiles/SRR598* #the beginning of the illumina datasets' SRA is specified
+for SRA_ID in `cat $1`
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-
-   cd /home/martasilva/
-   mkdir -p QSuberAlign
-   cd /home/martasilva/QSuberAlign/
-   mkdir -p $PROJECTNAME #creates folder for the .sam file
-   cd $PROJECTNAME
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   
+   cd /home/martasilva/IlluminaData/$PROJECTNAME
+   mkdir -p SAM-BAM #creates folder for the .sam file
+   cd hisat2
    mkdir -p logs #creates folder for the logs
-   cd $direc
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
+   cd ..
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SRA_ID 'HISAT2 ~~~~~~~~~~~~'
 
-   hisat2 -t --summary-file /home/martasilva/QSuberAlign/$PROJECTNAME/logs/loghisat2$FILENAME -x /home/martasilva/hisat/qsuber2018 -1 *1.fastq -2 *2.fastq -S /home/martasilva/QSuberAlign/$PROJECTNAME/hisat$FILENAME.sam
+   hisat2 -t --summary-file /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/logs/loghisat2$SRA_ID -x /home/martasilva/tools/HISAT2/qsuber2018/qsuber2018 -1 $SRA_ID*1.fastq -2 $SRA_ID*2.fastq -S /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/hisat$SRA_ID.sam
 
    cd ..
 done
@@ -82,20 +82,18 @@ done
 #
 
 counter=0
-for direc in /home/martasilva/fastqfiles/SRR598* #beggining of illumina SRA 
+for SRA_ID in `cat $1` 
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
-   cd /home/martasilva/QSuberAlign/
-   cd $PROJECTNAME
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'SAMTOOLS ~~~~~~~~~~~~'
+   cd /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SRA_ID 'SAMTOOLS ~~~~~~~~~~~~'
    echo ' '
    echo '    ...thinking...'
    echo ' '
 
-   samtools view -u *$FILENAME.sam | samtools sort -o st$FILENAME.bam
+   samtools view -u *$SRA_ID.sam | samtools sort -o $SRA_ID.bam
 
    cd ..
 done
@@ -112,15 +110,16 @@ done
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /home/martasilva/QSuberAlign/SRR598* #beggining of illumina SRA
+for direc in /home/martasilva/IlluminaData/* #beggining of illumina SRA
 do
    cd $direc
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
    counter=$((counter+1))
+   cd SAM-BAM
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
-   featureCounts -a /home/martasilva/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
+   featureCounts -a /home/martasilva/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
 # -a , annotation (gtf/gff)
 # -g , category for the sorting of the alignment (gene_id/gene_name)
 # -o , output as a .txt file
@@ -145,16 +144,16 @@ PATH=$PATH:/home/martasilva/tools/StringTie
 export PATH #alter to match the localization of the stringtie tool
 
 counter=0
-for direc in /home/martasilva/QSuberAlign/SRR598* #beginning of illumina dataset
+for SRA_ID in `cat $1`
 do
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
-   cd $direc
+   cd /home/martasilva/IlluminaData/$PROJECTNAME
+   mkdir -p gtf
    counter=$((counter+1))
    echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '~~~~~~~~~~~~~'
 
-   stringtie /home/martasilva/QSuberAlign/$PROJECTNAME/*.bam -A /home/martasilva/QSuberAlign/$PROJECTNAME/abundance$PROJECTNAME -G /home/martasilva/rawdata/CorkOak1.0_genomic.gtf -o /home/martasilva/QSuberAlign/$PROJECTNAME/$PROJECTNAME.gtf
+   stringtie /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/$SRA_ID.bam -A /home/martasilva/IlluminaData/$PROJECTNAME/abundance$PROJECTNAME -G /home/martasilva/CorkOak1.0_genomic.gtf -o /home/martasilva/IlluminaData/$PROJECTNAME/gtf/$PROJECTNAME.gtf
 
    cd ..
 done
