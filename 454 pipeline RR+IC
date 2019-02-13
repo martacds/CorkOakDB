@@ -287,7 +287,7 @@ counter=0
 for direc in /data/biodata/454Data/*
 do
    counter=$((counter+1))
-   PROJECTNAME=`echo $direc | cut -c1-6`
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
 
    cd /data/biodata/454Data/$PROJECTNAME
    FILENAME=`ls | grep notag | cut -c6-14`
