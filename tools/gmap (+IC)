@@ -1,0 +1,40 @@
+PATH=$PATH:/data/biodata/GMAP/src/
+export PATH
+
+mkdir /data/biodata/QSuberAlign
+
+for direc in /data/biodata/fastqfiles/*
+do
+   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   IC=`echo $PROJECTNAME | cut -c1-2`
+   
+   if [ `echo $FILENAME | grep -s RR` ] ; then
+   cd /data/biodata/QSuberAlign/
+   mkdir -p $PROJECTNAME
+   cd $PROJECTNAME
+   mkdir -p logs
+   
+   else 
+   cd /data/biodata/QSuberAlign
+   mkdir -p $IC
+   cd $IC
+   mkdir -p logs
+   fi
+   
+done
+
+counter=0
+for direc in /data/biodata/fastqfiles/*
+do
+   cd $direc
+   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   counter=$((counter+1))
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'GMAP ~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...thinking...'
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/QSuberAlign/$PROJECTNAME/gmap$FILENAME.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
+   cd ..
+done
