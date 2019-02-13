@@ -1,0 +1,14 @@
+PATH=$PATH:~/Documents/tools/SubRead/bin/
+export PATH
+
+counter=0
+for direc in /data/biodata/QSuberAlign/*
+do
+   cd $direc
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+   counter=$((counter+1))
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+   featureCounts -a /data/biodata/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
+   cd ..
+done
