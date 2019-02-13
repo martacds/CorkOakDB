@@ -1,0 +1,16 @@
+counter=0
+for SRA_ID in `cat $1` 
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+
+   cd /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SRA_ID 'SAMTOOLS ~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...thinking...'
+   echo ' '
+
+   samtools view -u *$SRA_ID.sam | samtools sort -o $SRA_ID.bam
+
+   cd ..
+done
