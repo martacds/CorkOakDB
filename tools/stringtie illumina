@@ -1,0 +1,18 @@
+
+PATH=$PATH:/home/martasilva/tools/StringTie
+export PATH #alter to match the localization of the stringtie tool
+
+counter=0
+for SRA_ID in `cat $1`
+do
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+
+   cd /home/martasilva/IlluminaData/$PROJECTNAME
+   mkdir -p gtf
+   counter=$((counter+1))
+   echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '~~~~~~~~~~~~~'
+
+   stringtie /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/$SRA_ID.bam -A /home/martasilva/IlluminaData/$PROJECTNAME/abundance$PROJECTNAME -G /home/martasilva/CorkOak1.0_genomic.gtf -o /home/martasilva/IlluminaData/$PROJECTNAME/gtf/$PROJECTNAME.gtf
+
+   cd ..
+done
