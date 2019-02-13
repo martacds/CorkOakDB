@@ -1,0 +1,25 @@
+   PATH=$PATH:/data/biodata/tools/GMAP/src/
+   export PATH #alter to match the localization of the gmap tool
+
+counter=0
+for SRA_ID in `cat $1`
+do
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   counter=$((counter+1))
+
+   cd /data/biodata/454Data/$PROJECTNAME
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $SRA_ID '~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...thinking...'
+
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/$SRA_ID.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$SRA_ID.txt
+# -d , name of the genome built using gmap_build
+# -t , number of threads
+# -f , codification
+# -n ,
+# Appends results from gmap to a .sam file
+# Creates a log of the results
+
+   cd ..
+done
