@@ -33,7 +33,6 @@ for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
-   mkdir -p $PROJECTNAME
    
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ ' $SRA_ID '~~~~~~~~~~~~'
