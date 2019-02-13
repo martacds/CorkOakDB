@@ -1,13 +1,17 @@
 :
 ##
 #
-# Pipeline for 454 datasets of RNA-Seq
-# Will extract the .fastq files from a list of SRA numbers, predicts and removes the tags, removes low quality sequences,
-# removes right 5% (Ns), maps to a genome built previously, converts to a .bam file and runs two counting tools
-# (raw counts and TPM/FPKM).
-# When appropriate it will create logs of the tools.
+# Pipeline for 454 datasets of RNA-Seq.
 #
-# fastq-dump > tagcleaner > sickle > prinseq > gmap > samtools > featurecounts > stringtie
+# fastq-dump : downloads the .fastq files from the SRA number
+# tagcleaner : predicts and removes the tags from the sequence
+# sickle : removes low-quality sequence
+# prinseq : removes right 5% (Ns), improves overall quality
+# gmap : maps sequences to genome built previously (gmap_build)
+# samtools : converts the .sam into .bam (sorted file)
+# featureCounts : outputs raw counts of alignment
+# stringtie : outputs TPM/FPKM counts
+#
 #
 # Marta Silva, ITQB
 # marcsilva@itqb.unl.pt
@@ -34,10 +38,10 @@ for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
 do
    counter=$((counter+1))
    echo ' '
-   echo '~~~~~~~~~~~~' $counter ' FASTQ ' $SRA_ID '~~~~~~~~~~~~'
-   
-   fastq-dump -O /data/biodata/fastqfiles/$SRA_ID $SRA_ID
-   
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| fastq-dump ' $SRA_ID '~~~~~~~~~~~~'
+
+   fastq-dump -O /data/biodata/454Data/$PROJECTNAME $SRA_ID
+
 done
 
 #############tagcleaner#############
@@ -58,77 +62,79 @@ done
 #Creates an alias, to make the command bellow easier
 
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for SRA_ID in `cat $1`
 do
-   FILENAME=$(echo "$direc" | cut --delimiter=/ -f5)
-   cd $direc
-   mkdir -p logs #creates the folder for all the dataset's logs
    counter=$((counter+1))
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+
+   cd /data/biodata/454Data/$PROJECTNAME
+   mkdir -p logs #creates the folder for all the dataset's logs
    echo ''
-   if [ `echo $FILENAME | grep RR` ] ; then 
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'TAGCLEANER PREDICT ~~~~~~~~~~~~'
-   
-   tagcleaner -verbose -fastq *RR*.fastq -predict >> ./logs/predict$FILENAME.txt
-   
+
+   if [ `echo $SRA_ID | grep RR` ] ; then
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $SRA_ID '~~~~~~~~~~~~'
+
+   tagcleaner -verbose -fastq *RR*.fastq -predict >> ./logs/predict$SRA_ID.txt
+
    fi
 
-   if [ `grep -s tag5 ./logs/predict$FILENAME.txt | cut -f2` ] ; then
+   if [ `grep -s tag5 ./logs/predict$SRA_ID.txt | cut -f2` ] ; then
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'CLEANING TAG5 ~~~~~~~~~~~~'
-   TAG=$(grep tag5 ./logs/predict"$FILENAME".txt | cut -f2)
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $SRA_ID '~~~~~~~~~~~~'
+   TAG=$(grep tag5 ./logs/predict"$SRA_ID".txt | cut -f2)
    echo $TAG #echos the predicted tag
    NNN=$(echo "$TAG" | sed 's/N.*//')
    echo $NNN #removed Ns from predicted tag
-   
-   tagcleaner -verbose -fastq *.fastq -tag5 $NNN -mm5 1 -out notag$FILENAME -log ./logs/tagcleanerlog$FILENAME.txt
+
+   tagcleaner -verbose -fastq *.fastq -tag5 $NNN -mm5 1 -out notag$SRA_ID -log ./logs/tagcleanerlog$SRA_ID.txt
 
 #IN/OUT functions as a downstream quality control for sequences/bases removed/lost
    INSEQ=$(grep 'Input sequences' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
    OUTSEQ=$(grep 'Output sequences' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
    INBAS=$(grep 'Input bases' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
    OUTBAS=$(grep 'Output bases' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
-   echo 'TagCleaner' >> ./logs/logpercentages$FILENAME.txt 
-   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'Percentage of kept sequences' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$FILENAME.txt
-   echo $INBAS >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTBAS >> ./logs/logpercentages$FILENAME.txt
-   echo 'Percentage of kept bases' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   
+   echo 'TagCleaner' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Percentage of kept sequences' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Percentage of kept bases' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$SRA_ID.txt
    cd ..
 
-   elif [ `echo $FILENAME | grep IC` ] ; then #iteration for the IC datasets
+   elif [ `echo $PROJECTNAME | grep IC` ] ; then #iteration for the IC datasets
    counter=$((counter+1))
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'NO TAG ~~~~~~~~~~~~'
+   IC={IC10A , IC25C , IC25H , IC42A , IC42HS , IC5C}
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $IC '~~~~~~~~~~~~'
    echo ' '
-   
-   cp *.fastq ./notag$FILENAME.fastq
-   
+
+   cp *.fastq ./notag$IC.fastq
+
    echo '  copied with prefix'
    echo ' '
-   echo 'TagCleaner' >> ./logs/logpercentages$FILENAME.txt
-   echo 'no sequences/bases removed' >> ./logs/logpercentages$FILENAME.txt
+   echo 'TagCleaner' >> ./logs/logpercentages$IC.txt
+   echo 'no sequences/bases removed' >> ./logs/logpercentages$IC.txt
    cd ..
 
    else #iteration for datasets with no tags
    counter=$((counter+1))
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'NO TAG ~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $SRA_ID '~~~~~~~~~~~~'
    echo ' '
-   
-   cp *.fastq ./notag$FILENAME.fastq
-   
+
+   cp *.fastq ./notag$SRA_ID.fastq
+
    echo '	copied with prefix'
    echo ' '
-   echo 'TagCleaner' >> ./logs/logpercentages$FILENAME.txt
-   echo 'no sequences/bases removed' >> ./logs/logpercentages$FILENAME.txt
+   echo 'TagCleaner' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'no sequences/bases removed' >> ./logs/logpercentages$SRA_ID.txt
    cd ..
    fi
-   
+
 done
 
 #############sickle#############
@@ -143,15 +149,16 @@ done
    export PATH #alter to match localization of sickle tool
 
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for SRA_ID in `cat $1`
 do
-   cd $direc
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
    counter=$((counter+1))
+
+   cd /data/biodata/454Data/$PROJECTNAME
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'SICKLE ~~~~~~~~~~~~'
-   
-   sickle se -q 20 -l 100 -f notag*.fastq -t sanger -o 'sickle'$FILENAME.fastq | tee ./logs/sicklelog$FILENAME.txt
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SICKLE' $SRA_ID '~~~~~~~~~~~~'
+
+   sickle se -q 20 -l 100 -f notag*.fastq -t sanger -o 'sickle'$SRA_ID.fastq | tee ./logs/sicklelog$SRA_ID.txt
 # se (single end)- 454, illumina, pe (paired end) - illumina
 # -q , quality threshold
 # -l , length of window
@@ -162,16 +169,16 @@ do
 
    INSEQ=`grep 'Total' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
    OUTSEQ=`grep 'kept' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
-   echo ' ' >> ./logs/logpercentages$FILENAME.txt
-   echo 'Sickle' >> ./logs/logpercentages$FILENAME.txt
-   echo 'INSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'Percentage of kept sequences' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
+   echo ' ' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Sickle' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INSEQ' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'OUTSEQ' >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Percentage of kept sequences' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$SRA_ID.txt
    cd ..
-   
+
 done
 
 #############prinseq#############
@@ -191,15 +198,16 @@ done
 # Creates an alias to make the command bellow easier
 
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for SRA_ID in `cat $1`
 do
-   cd $direc
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
    counter=$((counter+1))
+
+   cd /data/biodata/454Data/$PROJECTNAME
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $FILENAME 'PRINSEQ ~~~~~~~~~~~~'
-   
-   prinseq -verbose -trim_qual_left 20 -trim_right_p 5 -fastq sickle*.fastq -out_good 'ps'$FILENAME -out_bad psBAD$FILENAME -log ./logs/prinseqlog$FILENAME.txt
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| PRINSEQ' $SRA_ID '~~~~~~~~~~~~'
+
+   prinseq -verbose -trim_qual_left 20 -trim_right_p 5 -fastq sickle*.fastq -out_good 'ps'$SRA_ID -out_bad psBAD$SRA_ID -log ./logs/prinseqlog$SRA_ID.txt
 # -verbose , prints process progression to the screen
 # -trim_qual_left , trims according to quality starting on the left
 # -trim_right_p , trims right end according to percentage of sequence
@@ -212,21 +220,21 @@ do
    OUTSEQ=`grep 'Good sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
    INBAS=`grep 'Input bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
    OUTBAS=`grep 'Good bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
-   echo ' ' >> ./logs/logpercentages$FILENAME.txt
-   echo 'PrinSeq' >> ./logs/logpercentages$FILENAME.txt
-   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$FILENAME.txt
-   echo $INBAS >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTBAS >> ./logs/logpercentages$FILENAME.txt
-   echo 'Good Sequence percentage' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   echo 'Good Base percentage' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   
+   echo ' ' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'PrinSeq' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Good Sequence percentage' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Good Base percentage' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$SRA_ID.txt
+
    cd ..
-   
+
 done
 
 #############gmap#############
@@ -242,42 +250,20 @@ done
    PATH=$PATH:/data/biodata/tools/GMAP/src/
    export PATH #alter to match the localization of the gmap tool
 
-mkdir /data/biodata/QSuberAlign #creates the folder for the mapping results
-
-for direc in /data/biodata/fastqfiles/*
-do
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   IC=`echo $PROJECTNAME | cut -c1-2`
-
-   if [ `echo $FILENAME | grep -s RR` ] ; then 
-   cd /data/biodata/QSuberAlign/
-   mkdir -p $PROJECTNAME #creates folder for fastq-dump datasets
-   cd $PROJECTNAME
-   mkdir -p logs #creates logs folder in project folder
-
-   else #creates folder for IC datasets
-   cd /data/biodata/QSuberAlign
-   mkdir -p $IC
-   cd $IC
-   mkdir -p logs #creates logs folder in project folder
-   fi
-
-done
-
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for direc in /data/biodata/454Data/*
 do
-   cd $direc
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
    counter=$((counter+1))
+
+   cd /data/biodata/454Data/$PROJECTNAME
+   FILENAME=`ls | grep notag | cut -c6-14`
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'GMAP ~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
    echo ' '
    echo '    ...thinking...'
-   
-   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/QSuberAlign/$PROJECTNAME/gmap$FILENAME.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
+
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/gmap$FILENAME.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
 # -d , name of the genome built using gmap_build
 # -t , number of threads
 # -f , codification
@@ -298,18 +284,19 @@ done
 # samtools sort sorts the .sam and outputs as a .bam
 
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for direc in /data/biodata/454Data/*
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   cd /data/biodata/QSuberAlign/
-   cd $PROJECTNAME
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'SAMTOOLS ~~~~~~~~~~~~'
+   PROJECTNAME=`echo $direc | cut -c1-6`
+
+   cd /data/biodata/454Data/$PROJECTNAME
+   FILENAME=`ls | grep notag | cut -c6-14`
+
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
    echo '    ...thinking...'
    echo ' '
-   
+
    samtools view -u *$FILENAME.sam | samtools sort -o st$FILENAME.bam
 # -u , opens as uncompressed .sam file
 # -o , outputs as a .bam file
@@ -327,15 +314,16 @@ done
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /data/biodata/QSuberAlign/*
+for direc in /data/biodata/454Data/*
 do
-   cd $direc
-   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
    counter=$((counter+1))
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+
+   cd $direc
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
-   
-   featureCounts -a /data/biodata/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$FILENAME.txt
+
+   featureCounts -a /data/biodata/rawdata/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
 # -a , annotation (gtf/gff)
 # -g , category for the sorting of the alignment (gene_id/gene_name)
 # -o , output as a .txt file
@@ -358,17 +346,38 @@ done
    export PATH #alter to match the localization of the stringtie tool
 
 counter=0
-for direc in /data/biodata/fastqfiles/*
+for direc in /data/biodata/454Data/*
 do
-   FILENAME=`echo $direc | cut --delimiter=/ -f5`
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-
-   cd /data/biodata/QSuberAlign/
-   cd $PROJECTNAME
    counter=$((counter+1))
-   echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '|' $FILENAME '~~~~~~~~~~~~~'
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+
+   cd $PROJECTNAME
+   FILENAME=`ls | grep notag | cut -c6-14`
+   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
 
    stringtie /data/biodata/QSuberAlign/$PROJECTNAME/*$FILENAME.bam -A /data/biodata/QSuberAlign/$PROJECTNAME/abundance$FILENAME -G /data/biodata/rawdata/CorkOak1.0_genomic.gtf -o /data/biodata/QSuberAlign/$PROJECTNAME/$FILENAME.gtf
 
    cd ..
+done
+
+for direc in /data/biodata/454Data/*
+do
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
+   cd $PROJECTNAME
+   mkdir -p notag
+   mkdir -p sickle
+   mkdir -p prinseq
+   mkdir -p gmap
+   mkdir -p bam
+   mkdir -p featurecounts
+   mkdir -p stringtie
+
+   mv sickle* ./sickle
+   mv notag* ./notag
+   mv *.bam ./bam
+   mv *.sam ./gmap
+   mv abundance* ./stringtie
+   mv *gtf ./stringtie
+   mv counts* ./featurecounts
+   mv ps* ./prinseq
 done
