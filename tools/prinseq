@@ -1,0 +1,45 @@
+PATH=$PATH:/data/biodata/tools/PrinSeq
+   export PATH #alter path to match the localization of the prinseq tool
+
+   alias prinseq='perl ~/Documents/tools/PrinSeq/prinseq-lite.pl'
+# Creates an alias to make the command bellow easier
+
+counter=0
+for SRA_ID in `cat $1`
+do
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   counter=$((counter+1))
+
+   cd /data/biodata/454Data/$PROJECTNAME
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| PRINSEQ' $SRA_ID '~~~~~~~~~~~~'
+
+   prinseq -verbose -trim_qual_left 20 -trim_right_p 5 -fastq sickle*.fastq -out_good 'ps'$SRA_ID -out_bad psBAD$SRA_ID -log ./logs/prinseqlog$SRA_ID.txt
+# -verbose , prints process progression to the screen
+# -trim_qual_left , trims according to quality starting on the left
+# -trim_right_p , trims right end according to percentage of sequence
+# -fastq , input file is a .fastq file
+# -out_good , outputs the 'good' sequences to a file matching the input
+# -out_bad , outputs the 'bad' sequences to a file matching the input
+# -log , creates a log of the process
+
+   INSEQ=`grep 'Input sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   OUTSEQ=`grep 'Good sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   INBAS=`grep 'Input bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   OUTBAS=`grep 'Good bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   echo ' ' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'PrinSeq' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$SRA_ID.txt
+   echo $INBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo $OUTBAS >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Good Sequence percentage' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$SRA_ID.txt
+   echo 'Good Base percentage' >> ./logs/logpercentages$SRA_ID.txt
+   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$SRA_ID.txt
+
+   cd ..
+
+done
