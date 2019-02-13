@@ -1,0 +1,19 @@
+counter=0
+for SRA_ID in `cat $1`
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+
+   cd /data/biodata/454Data/$PROJECTNAME
+
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $SRA_ID '~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...thinking...'
+   echo ' '
+
+   samtools view -u *$SRA_ID.sam | samtools sort -o $SRA_ID.bam
+# -u , opens as uncompressed .sam file
+# -o , outputs as a .bam file
+
+   cd ..
+done
