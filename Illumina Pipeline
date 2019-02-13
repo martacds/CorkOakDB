@@ -1,10 +1,12 @@
 :
 ##
-# Pipeline for Illumina datasets of RNA-Seq
-# Assumes that data uploaded to NCBI is already devoid of tags, low quality sequences and empty reads.
-# Will extract the .fastq file, align it to a genome index (that has to be built previously),
-# will convert the .sam file into a .bam and then run two counting tools (raw counts and TPM/FPKM)
-# When appropriate it will create logs of the tools.
+# Pipeline for Illumina datasets of RNA-Seq.
+#
+# fastq-dump : downloads the .fastq files from the SRA number
+# hisat2 : aligns the paired end
+# samtools : converts the .sam into .bam (sorted file)
+# featureCounts : outputs raw counts of alignment
+# stringtie : outputs TPM/FPKM counts
 #
 # fastq-dump > hisat2 > samtools > featurecounts > stringtie
 #
@@ -37,7 +39,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ ' $SRA_ID '~~~~~~~~~~~~'
 
-   fastq-dump -O /home/martasilva/IlluminaData/$PROJECTNAME/$SRA_ID $SRA_ID
+   fastq-dump -I --split-files -O /home/martasilva/IlluminaData/$PROJECTNAME/$SRA_ID $SRA_ID
 
 done
 
