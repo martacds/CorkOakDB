@@ -13,7 +13,7 @@ do
    echo ' '
    echo '    ...thinking...'
 
-   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/$SRA_ID.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$SRA_ID.txt
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/$SRA_ID.sam 2> /data/biodata/454Data/$PROJECTNAME/logs/GMAPlog$SRA_ID.txt
 # -d , name of the genome built using gmap_build
 # -t , number of threads
 # -f , codification
