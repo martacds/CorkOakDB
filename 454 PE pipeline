@@ -1,18 +1,5 @@
 :
 ##
-# Pipeline for Illumina datasets of RNA-Seq.
-#
-# fastq-dump : downloads the .fastq files from the SRA number
-# tagcleaner : 
-# sickle : 
-# prinseq : 
-# hisat2 : 
-# samtools : converts the .sam into .bam (sorted file)
-# featureCounts : outputs raw counts of alignment
-# stringtie : outputs TPM/FPKM counts
-#
-# Marta Silva, ITQB
-# marcsilva@itqb.unl.pt
 #
 #############fastq-dump#############
 #
@@ -28,7 +15,8 @@
 # When using, indicate path to the command followed by the list of SRA numbers.
 # e.g. ./dwnfastq.sh listSRAnumbers.txt
 #
-   PATH=$PATH:/home/martasilva/tools/SRAtoolkit/bin/
+
+PATH=$PATH:/home/martasilva/tools/SRAtoolkit/bin/
    export PATH #alter to match localization of fastq-dump
 
 counter=0
@@ -40,7 +28,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ ' $SRA_ID '~~~~~~~~~~~~'
 
-   fastq-dump -I --split-files -O /home/martasilva/IlluminaData/$PROJECTNAME/$SRA_ID $SRA_ID
+   fastq-dump -I --split-files -O /home/martasilva/PEData/$PROJECTNAME/$SRA_ID $SRA_ID
 
 done
 
@@ -226,17 +214,21 @@ do
 
 done
 
-#############gmap#############
+############hisat2#############
 #
 # Built using:
-# http://manpages.ubuntu.com/manpages/bionic/man1/gmap.1.html
+# http://ccb.jhu.edu/software/hisat2/manual.shtml#running-hisat2
 #
-# Runs GMAP on the .fastq files from PrinSeq
-# Outputs a .sam file per dataset, divided by project
-# Necessary to build the genome using gmap_build
+# Runs HISAT2 on the .fastq files.
+# Aligns to a genome. Outputs a .sam file.
+#
+# Necessary to build an index using hisat2-build
+#
+# Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
+# This is insanely ugly and an alternative is essential.
 
-   PATH=$PATH:/home/martasilva/tools/GMAP/src/
-   export PATH #alter to match the localization of the gmap tool
+   PATH=$PATH:/home/martasilva/tools/HISAT2/
+   export PATH #alter to match the localization of the hisat2 tool
 
 counter=0
 for direc in /home/martasilva/PEData/*
@@ -246,18 +238,9 @@ do
    FILENAME=`ls | grep notag*.fastq | cut -c6-17`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
-   echo ' '
-   echo '    ...thinking...'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
 
-   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /home/martasilva/PEData/$PROJECTNAME/gmap$FILENAME.sam 2> /home/martasilva/PEData/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
-# -d , name of the genome built using gmap_build
-# -t , number of threads
-# -f , codification
-# -n ,
-# Appends results from gmap to a .sam file
-# Creates a log of the results
+   hisat2 -t --summary-file /home/martasilva/PEData/$PROJECTNAME/logs/loghisat2$FILENAME -x /home/martasilva/tools/HISAT2/qsuber2018/qsuber2018 -1 $FILENAME*1.fastq -2 $FILENAME*2.fastq -S /home/martasilva/PEData/$PROJECTNAME/hisat$FILENAME.sam
 
    cd ..
 done
