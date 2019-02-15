@@ -9,5 +9,5 @@ do
    
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
-   fastq-dump -O /data/biodata/fastqfiles/$SRA_ID $SRA_ID
+   fastq-dump -O /data/biodata/454Data/$SRA_ID $SRA_ID
 done
