@@ -66,13 +66,12 @@ do
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
    
    cd /home/martasilva/IlluminaData/$PROJECTNAME
-   mkdir -p SAM-BAM #creates folder for the .sam file
-   cd hisat2
+
    mkdir -p logs #creates folder for the logs
-   cd ..
+
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SRA_ID 'HISAT2 ~~~~~~~~~~~~'
 
-   hisat2 -t --summary-file /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/logs/loghisat2$SRA_ID -x /home/martasilva/tools/HISAT2/qsuber2018/qsuber2018 -1 $SRA_ID*1.fastq -2 $SRA_ID*2.fastq -S /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/hisat$SRA_ID.sam
+   hisat2 -t --summary-file /home/martasilva/IlluminaData/$PROJECTNAME/logs/loghisat2$SRA_ID -x /home/martasilva/tools/HISAT2/qsuber2018/qsuber2018 -1 $SRA_ID*1.fastq -2 $SRA_ID*2.fastq -S /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM/hisat$SRA_ID.sam
 
    cd ..
 done
@@ -88,7 +87,7 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
-   cd /home/martasilva/IlluminaData/$PROJECTNAME/SAM-BAM
+   cd /home/martasilva/IlluminaData/$PROJECTNAME
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SRA_ID 'SAMTOOLS ~~~~~~~~~~~~'
    echo ' '
    echo '    ...thinking...'
@@ -111,12 +110,12 @@ done
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /home/martasilva/IlluminaData/* #beggining of illumina SRA
+for direc in /home/martasilva/IlluminaData/* 
 do
    cd $direc
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
    counter=$((counter+1))
-   cd SAM-BAM
+
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
@@ -150,7 +149,7 @@ do
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
    cd /home/martasilva/IlluminaData/$PROJECTNAME
-   mkdir -p gtf
+
    counter=$((counter+1))
    echo '~~~~~~~~~~~~~ STRINGTIE' $counter $PROJECTNAME '~~~~~~~~~~~~~'
 
