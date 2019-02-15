@@ -37,6 +37,8 @@ counter=0
 for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
 do
    counter=$((counter+1))
+   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| fastq-dump ' $SRA_ID '~~~~~~~~~~~~'
 
@@ -194,7 +196,7 @@ done
    PATH=$PATH:/data/biodata/tools/PrinSeq
    export PATH #alter path to match the localization of the prinseq tool
 
-   alias prinseq='perl ~/Documents/tools/PrinSeq/prinseq-lite.pl'
+   alias prinseq='perl /data/biodata/tools/PrinSeq/prinseq-lite.pl'
 # Creates an alias to make the command bellow easier
 
 counter=0
@@ -263,7 +265,7 @@ do
    echo ' '
    echo '    ...thinking...'
 
-   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/gmap$FILENAME.sam 2> /data/biodata/QSuberAlign/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/gmap$FILENAME.sam 2> /data/biodata/454Data/$PROJECTNAME/logs/GMAPlog$FILENAME.txt
 # -d , name of the genome built using gmap_build
 # -t , number of threads
 # -f , codification
@@ -355,7 +357,7 @@ do
    FILENAME=`ls | grep notag | cut -c6-14`
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
 
-   stringtie /data/biodata/QSuberAlign/$PROJECTNAME/*$FILENAME.bam -A /data/biodata/QSuberAlign/$PROJECTNAME/abundance$FILENAME -G /data/biodata/rawdata/CorkOak1.0_genomic.gtf -o /data/biodata/QSuberAlign/$PROJECTNAME/$FILENAME.gtf
+   stringtie /data/biodata/454Data/$PROJECTNAME/*$FILENAME.bam -A /data/biodata/454Data/$PROJECTNAME/abundance$FILENAME -G /data/biodata/rawdata/CorkOak1.0_genomic.gtf -o /data/biodata/454Data/$PROJECTNAME/$FILENAME.gtf
 
    cd ..
 done
