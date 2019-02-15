@@ -3,12 +3,12 @@
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /home/martasilva/IlluminaData/* #beggining of illumina SRA
+for direc in /home/martasilva/IlluminaData/*
 do
    cd $direc
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
    counter=$((counter+1))
-   cd SAM-BAM
+   
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
