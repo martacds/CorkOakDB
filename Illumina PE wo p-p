@@ -1,6 +1,18 @@
 :
 ##
 #
+# Pipeline for processing the Paired End Illumina data from RNA-Seq.
+#
+# fastq-dump: downloads the .fastq files from the SRA number
+# hisat2: maps sequences to genome built previously (hisat2_build)
+# samtools: converts the .sam into .bam (sorted file)
+# featurecounts: outputs raw counts of alignment
+# stringtie: outputs TPM/FPKM counts
+# "housekeeping": sorts the all the output files into folders divided by tools
+#
+# Marta Silva, ITQB
+# marcsilva@itqb.unl.pt
+#
 #############fastq-dump#############
 #
 # Built using:
@@ -27,7 +39,11 @@ do
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
+   echo '		...getting the file: '$SRA_ID'.fastq'
+   echo ' '
+   
    fastq-dump -I --split-files -O /home/martasilva/IlluminaData/fastqfiles/$SRA_ID $SRA_ID
+   
    cd /home/martasilva/IlluminaData/fastqfiles/$SRA_ID
    ls | grep fastq | cut -c1-12 >> /home/martasilva/IlluminaData/listfilenames.txt
    cd /home/martasilva
@@ -61,7 +77,10 @@ do
    FILENAME=`echo $direc | cut --delimiter=/ -f6`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
+   echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
+   echo '    ...mapping to genome...'
+   
    cd $direc
    hisat2 -t --summary-file /home/martasilva/IlluminaData/BioProjects/$PROJECTNAME/logs/loghisat2$FILENAME.txt -x /home/martasilva/tools/HISAT2-2.1.0/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S /home/martasilva/IlluminaData/BioProjects/$PROJECTNAME/$FILENAME.sam
 
@@ -86,7 +105,7 @@ do
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...thinking...'
+   echo '    ...converting .sam into sorted .bam...'
    echo ' '
    
    cd /home/martasilva/IlluminaData/BioProjects/$PROJECTNAME
@@ -115,6 +134,7 @@ do
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+   
    cd /home/martasilva/IlluminaData/BioProjects/$PROJECTNAME
    featureCounts -a /home/martasilva/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
 # -a , annotation (gtf/gff)
@@ -146,7 +166,7 @@ do
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
-   echo '      ...thinking...'
+   echo '      ...calculating TPM/FPKM...'
    echo ' '
      
    cd /home/martasilva/IlluminaData/BioProjects/$PROJECTNAME
