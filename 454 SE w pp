@@ -41,7 +41,7 @@ do
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
-   echo '		...getting the file: $SRA_ID.fastq'
+   echo '		...getting the file: '$SRA_ID'.fastq'
    echo ' '
 
    fastq-dump -O /home/martasilva/454Data/fastqfiles/$SRA_ID $SRA_ID
@@ -84,7 +84,9 @@ do
 
    echo ''
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $FILENAME '~~~~~~~~~~~~'
-
+   echo ' '
+   echo '      ...predicting the tag from '$FILENAME'.fastq...'
+   echo ' '
    cd $direc
    tagcleaner -verbose -fastq *.fastq -predict >> /home/martasilva/454Data/BioProjects/$PROJECTNAME/logs/predict$FILENAME.txt
 
@@ -260,7 +262,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...thinking...'
+   echo '    ...mapping to genome...'
 
    gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > ./$FILENAME.sam 2> ./logs/GMAPlog$FILENAME.txt
 # -d , name of the genome built using gmap_build
@@ -293,7 +295,7 @@ do
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...thinking...'
+   echo '    ...converting .sam into sorted .bam...'
    echo ' '
 
    samtools view -u *$FILENAME.sam | samtools sort -o $FILENAME.bam
@@ -353,6 +355,8 @@ do
 
    cd /home/martasilva/454Data/BioProjects/$PROJECTNAME
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
+   echo ' '
+   echo '      ...calculating TPM/FPKM...'
 
    stringtie /home/martasilva/454Data/BioProjects/$PROJECTNAME/$FILENAME.bam -A /home/martasilva/454Data/BioProjects/$PROJECTNAME/abundance$FILENAME -G /home/martasilva/CorkOak1.0_genomic.gtf -o /home/martasilva/454Data/BioProjects/$PROJECTNAME/$FILENAME.gtf
 
