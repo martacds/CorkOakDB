@@ -1,0 +1,361 @@
+:
+##
+#
+# Pipeline for 454 datasets of RNA-Seq. Iteration for IC datasets.
+#
+# tagcleaner : predicts and removes the tags from the sequence
+# sickle : removes low-quality sequence
+# prinseq : removes right 5% (Ns), improves overall quality
+# gmap : maps sequences to genome built previously (gmap_build)
+# samtools : converts the .sam into .bam (sorted file)
+# featureCounts : outputs raw counts of alignment
+# stringtie : outputs TPM/FPKM counts
+#
+#
+# Marta Silva, ITQB
+# marcsilva@itqb.unl.pt
+#
+   cd /home/martasilva/
+   mkdir -p ICdata
+   chmod 755 /home/martasilva/ICdata/
+   cd /home/martasilva/ICfastq
+   ls | grep fastq | cut --delimiter=. -f1 >> /home/martasilva/ICdata/listfilenamesIC.txt
+   cd /home/martasilva
+   cd /home/martasilva/ICdata
+   mkdir -p BioProjects
+   cd BioProjects
+   mkdir -p logs
+
+#############tagcleaner#############
+#
+# Built using:
+# http://tagcleaner.sourceforge.net/manual.html#STANDALONE
+#
+# Predicts the tag 5' of the .fastq file
+# If a tag is present it removes it. If there is no tag, nothing happens.
+# In both cases it outputs a file with the prefix 'notag'
+#
+# Creates a log of the process
+# Creates a file to log the numbers and percentages of each command.
+# One percentages log per dataset
+#
+
+   alias tagcleaner='perl /home/martasilva/tools/TagCleaner-0.16/tagcleaner.pl'
+#Creates an alias, to make the command bellow easier
+
+counter=0
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r LIST
+do
+   counter=$((counter+1))
+   FILENAME=`echo $LIST | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICfastq
+
+   echo ''
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $LIST '~~~~~~~~~~~~'
+   echo ' '
+   echo ' 		...predicting tag...'
+
+   tagcleaner -verbose -fastq *.fastq -predict >> /home/martasilva/ICdata/BioProjects/logs/predict$LIST.txt
+
+   if [ `grep -s tag5 /home/martasilva/ICdata/BioProjects/logs/predict$LIST.txt | cut -f2` ] ; then
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $LIST '~~~~~~~~~~~~'
+
+   TAG=$(grep tag5 /home/martasilva/ICdata/BioProjects/logs/predict"$LIST".txt | cut -f2)
+   echo $TAG #echos the predicted tag
+   NNN=$(echo "$TAG" | sed 's/N.*//')
+   echo $NNN #removed Ns from predicted tag
+
+   tagcleaner -verbose -fastq *.fastq -tag5 $NNN -mm5 1 -out /home/martasilva/ICdata/BioProjects/notag$LIST -log /home/martasilva/ICdata/BioProjects/logs/tagcleanerlog$LIST.txt
+
+#IN/OUT functions as a downstream quality control for sequences/bases removed/lost
+#   INSEQ=$(grep 'Input sequences' /home/martasilva/PEData/$PROJECTNAME/logs/tagcleaner*.txt | cut --delimiter=\  -f6)
+#   OUTSEQ=$(grep 'Output sequences' /home/martasilva/PEData/$PROJECTNAME/logs/tagcleaner*.txt | cut --delimiter=\  -f6)
+#   INBAS=$(grep 'Input bases' /home/martasilva/PEData/$PROJECTNAME/logs/tagcleaner*.txt | cut --delimiter=\  -f6)
+#   OUTBAS=$(grep 'Output bases' /home/martasilva/PEData/$PROJECTNAME/logs/tagcleaner*.txt | cut --delimiter=\  -f6)
+#   echo 'TagCleaner' >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo 'INSEQ , OUTSEQ' >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo $INSEQ >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo $OUTSEQ >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo 'Percentage of kept sequences' >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo 'INBAS , OUTBAS' >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo $INBAS >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo $OUTBAS >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo 'Percentage of kept bases' >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+#   echo "($OUTBAS * 100) * $INBAS" | bc -l >> /home/martasilva/PEData/$PROJECTNAME/logs/logpercentages$LIST.txt
+
+   cd ..
+
+   else #iteration for datasets with no tags
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $LIST '~~~~~~~~~~~~'
+   echo ' '
+
+   cp *.fastq /home/martasilva/ICdata/BioProjects/notag$LIST.fastq
+
+   echo '  copied with prefix'
+   echo ' '
+   echo 'TagCleaner' >> /home/martasilva/ICdata/BioProjects/logs/logpercentages$LIST.txt
+   echo 'no sequences/bases removed' >> /home/martasilva/ICdata/BioProjects/logs/logpercentages$LIST.txt
+   cd ..
+   fi
+done < "$input"
+
+#############sickle#############
+#
+# Built using:
+# https://github.com/najoshi/sickle
+#
+# Runs Sickle on the .fastq files form tagcleaner.
+# Improves the overall quality of the dataset
+
+   PATH=$PATH:/home/martasilva/tools/sickle-1.33/
+   export PATH #alter to match localization of sickle tool
+
+counter=0
+for direc in /home/martasilva/ICfastq/
+do
+   counter=$((counter+1))
+   cd $direc
+   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICdata/BioProjects/
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SICKLE' $FILENAME '~~~~~~~~~~~~'
+
+   sickle se -q 20 -l 100 -f notag*.fastq -t sanger -o 'sickle'$FILENAME.fastq | tee ./logs/sicklelog$FILENAME.txt
+# se (single end)- 454, illumina, pe (paired end) - illumina
+# -q , quality threshold
+# -l , length of window
+# -f , input file as .fastq
+# -t , codification
+# -o , output file
+# tee will append the stdout to a .txt file
+
+   INSEQ=`grep 'Total' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
+   OUTSEQ=`grep 'kept' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
+   echo ' ' >> ./logs/logpercentages$FILENAME.txt
+   echo 'Sickle' >> ./logs/logpercentages$FILENAME.txt
+   echo 'INSEQ' >> ./logs/logpercentages$FILENAME.txt
+   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
+   echo 'OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
+   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
+   echo 'Percentage of kept sequences' >> ./logs/logpercentages$FILENAME.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
+   cd ..
+
+done
+
+#############prinseq#############
+#
+# Built using:
+# http://prinseq.sourceforge.net/manual.html#STANDALONE
+#
+# Runs PrinSeq on the .fastq files from Sickle
+# Trims in terms of quality (set as 20) from the left.
+# Trims a % form the right (set as 5), which will remove the Ns from the end of the sequence
+# Outputs good and bad sequences, and creates a log
+
+   PATH=$PATH:/home/martasilva/tools/PrinSeq-0.20.4
+   export PATH #alter path to match the localization of the prinseq tool
+
+   alias prinseq='perl /home/martasilva/tools/PrinSeq-0.20.4/prinseq-lite.pl'
+# Creates an alias to make the command bellow easier
+
+counter=0
+for direc in /home/martasilva/ICfastq/
+do
+   counter=$((counter+1))
+   cd $direc
+   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICdata/BioProjects/
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| PRINSEQ' $FILENAME '~~~~~~~~~~~~'
+
+   prinseq -verbose -trim_qual_left 20 -trim_right_p 5 -fastq sickle*.fastq -out_good 'ps'$FILENAME -out_bad psBAD$FILENAME -log ./logs/prinseqlog$FILENAME.txt
+# -verbose , prints process progression to the screen
+# -trim_qual_left , trims according to quality starting on the left
+# -trim_right_p , trims right end according to percentage of sequence
+# -fastq , input file is a .fastq file
+# -out_good , outputs the 'good' sequences to a file matching the input
+# -out_bad , outputs the 'bad' sequences to a file matching the input
+# -log , creates a log of the process
+
+   INSEQ=`grep 'Input sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   OUTSEQ=`grep 'Good sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   INBAS=`grep 'Input bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   OUTBAS=`grep 'Good bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+   echo ' ' >> ./logs/logpercentages$FILENAME.txt
+   echo 'PrinSeq' >> ./logs/logpercentages$FILENAME.txt
+   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
+   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
+   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$FILENAME.txt
+   echo $INBAS >> ./logs/logpercentages$FILENAME.txt
+   echo $OUTBAS >> ./logs/logpercentages$FILENAME.txt
+   echo 'Good Sequence percentage' >> ./logs/logpercentages$FILENAME.txt
+   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
+   echo 'Good Base percentage' >> ./logs/logpercentages$FILENAME.txt
+   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$FILENAME.txt
+
+   cd ..
+
+done
+
+#############gmap#############
+#
+# Built using:
+# http://manpages.ubuntu.com/manpages/bionic/man1/gmap.1.html
+#
+# Runs GMAP on the .fastq files from PrinSeq
+# Outputs a .sam file per dataset, divided by project
+"
+# Necessary to build the genome using gmap_build
+
+   PATH=$PATH:/home/martasilva/tools/GMAP-2019-01-24/src/
+   export PATH #alter to match the localization of the gmap tool
+
+counter=0
+for direc in /home/martasilva/ICfastq/
+do
+   counter=$((counter+1))
+   cd $direc
+   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICdata/BioProjects/
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...mapping to genome...'
+
+   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > ./$FILENAME.sam 2> ./logs/GMAPlog$FILENAME.txt
+# -d , name of the genome built using gmap_build
+# -t , number of threads
+# -f , codification
+# -n ,
+# Appends results from gmap to a .sam file
+# Creates a log of the results
+
+   cd ..
+done
+
+#############samtools#############
+#
+# Built using:
+# information in ESTsColdHeat_processing
+#
+# Runs samtools in the .sam files from gmap
+# samtools view 'opens' the .sam file
+# samtools sort sorts the .sam and outputs as a .bam
+
+counter=0
+for direc in /home/martasilva/ICfastq/
+do
+   counter=$((counter+1))
+   cd $direc
+   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICdata/BioProjects/
+
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...converting .sam into sorted .bam...'
+   echo ' '
+
+   samtools view -u *$FILENAME.sam | samtools sort -o $FILENAME.bam
+# -u , opens as uncompressed .sam file
+# -o , outputs as a .bam file
+
+   cd ..
+done
+
+#############featurecounts#############
+#
+# Built using:
+# http://bioinf.wehi.edu.au/featureCounts/
+#
+
+   PATH=$PATH:/home/martasilva/tools/SubRead-v1.6.3/bin/
+   export PATH #alter to match the localization of the featureCounts tool
+
+counter=0
+for direc in /home/martasilva/ICdata/Bioprojects/
+do
+   counter=$((counter+1))
+   FOLDER=`echo $direc | cut --delimiter=/ -f4`
+   PROJECTNAME=`echo $FOLDER | cut -c1-2`
+
+   cd $direc
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+
+   featureCounts -a /home/martasilva/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
+# -a , annotation (gtf/gff)
+# -g , category for the sorting of the alignment (gene_id/gene_name)
+# -o , output as a .txt file
+# 2>&1 | tee , will append to a log file and print it on the screen
+
+   cd ..
+done
+
+#############stringtie#############
+#
+# Built using:
+# https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+#
+# Will give the TPM and FPKM in an abundance file
+# Outputs a .gtf file
+#
+# Needs the indication of a reference genome as a .gtf file
+
+   PATH=$PATH:/home/martasilva/tools/StringTie-v1.3.5
+   export PATH #alter to match the localization of the stringtie tool
+
+counter=0
+for direc in /home/martasilva/ICfastq/
+do
+   counter=$((counter+1))
+   cd $direc
+   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd /home/martasilva/ICdata/BioProjects/
+
+   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
+   echo ' '
+   echo '      ...calculating TPM/FPKM...'
+
+   stringtie /home/martasilva/ICdata/BioProjects/$FILENAME.bam -A /home/martasilva/ICdata/BioProjects/abundance$FILENAME -G /home/martasilva/CorkOak1.0_genomic.gtf -o /home/martasilva/ICdata/BioProjects/$FILENAME.gtf
+
+   cd ..
+done
+
+for direc in /home/martasilva/ICdata/BioProjects/
+do
+   PROJECTNAME=`echo $direc | cut --delimiter=/ -f6`
+   mkdir -p notag
+   mkdir -p sickle
+   mkdir -p prinseq
+   mkdir -p gmap
+   mkdir -p bam
+   mkdir -p featurecounts
+   mkdir -p stringtie
+
+   mv sickle* ./sickle
+   mv notag* ./notag
+   mv *.bam ./bam
+   mv *.sam ./gmap
+   mv abundance* ./stringtie
+   mv *.gtf ./stringtie
+   mv counts* ./featurecounts
+   mv ps* ./prinseq
+done
