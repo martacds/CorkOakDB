@@ -363,6 +363,11 @@ do
    cd ..
 done
 
+#############housekeeping#############
+#
+# sorts output files into folders divided by tool
+#
+
 for direc in /home/martasilva/454Data/BioProjects/*
 do
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f6`
