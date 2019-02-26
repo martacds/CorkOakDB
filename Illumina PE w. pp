@@ -159,7 +159,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SICKLE' $FILENAME '~~~~~~~~~~~~'
 
-   sickle se -q 20 -l 100 -f notag*.fastq -t sanger -o 'sickle'$FILENAME.fastq | tee ./logs/sicklelog$FILENAME.txt
+   sickle se -q 20 -l 20 -f notag*.fastq -t sanger -o 'sickle'$FILENAME.fastq | tee ./logs/sicklelog$FILENAME.txt
 # se (single end)- 454, illumina, pe (paired end) - illumina
 # -q , quality threshold
 # -l , length of window
