@@ -117,11 +117,10 @@ done < "$input"
    export PATH #alter to match localization of sickle tool
 
 counter=0
-for direc in /home/martasilva/ICfastq/
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   cd $direc
-   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd /home/martasilva/ICdata/BioProjects/
@@ -137,19 +136,19 @@ do
 # -o , output file
 # tee will append the stdout to a .txt file
 
-   INSEQ=`grep 'Total' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
-   OUTSEQ=`grep 'kept' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
-   echo ' ' >> ./logs/logpercentages$FILENAME.txt
-   echo 'Sickle' >> ./logs/logpercentages$FILENAME.txt
-   echo 'INSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo 'Percentage of kept sequences' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   cd ..
+#   INSEQ=`grep 'Total' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
+#   OUTSEQ=`grep 'kept' ./logs/sicklelog*.txt | cut --delimiter=\  -f4`
+#   echo ' ' >> ./logs/logpercentages$FILENAME.txt
+#   echo 'Sickle' >> ./logs/logpercentages$FILENAME.txt
+#   echo 'INSEQ' >> ./logs/logpercentages$FILENAME.txt
+#   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
+#   echo 'OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
+#   echo $OUTSEQ >> ./logs/logpercentages$FILENAME.txt
+#   echo 'Percentage of kept sequences' >> ./logs/logpercentages$FILENAME.txt
+#   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
+#   cd ..
 
-done
+done < "$input"
 
 #############prinseq#############
 #
@@ -168,11 +167,10 @@ done
 # Creates an alias to make the command bellow easier
 
 counter=0
-for direc in /home/martasilva/ICfastq/
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   cd $direc
-   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd /home/martasilva/ICdata/BioProjects/
@@ -188,26 +186,26 @@ do
 # -out_bad , outputs the 'bad' sequences to a file matching the input
 # -log , creates a log of the process
 
-   INSEQ=`grep 'Input sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
-   OUTSEQ=`grep 'Good sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
-   INBAS=`grep 'Input bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
-   OUTBAS=`grep 'Good bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
-   echo ' ' >> ./logs/logpercentages$FILENAME.txt
-   echo 'PrinSeq' >> ./logs/logpercentages$FILENAME.txt
-   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
-   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
-   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$FILENAME.txt
-   echo $INBAS >> ./logs/logpercentages$FILENAME.txt
-   echo $OUTBAS >> ./logs/logpercentages$FILENAME.txt
-   echo 'Good Sequence percentage' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
-   echo 'Good Base percentage' >> ./logs/logpercentages$FILENAME.txt
-   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$FILENAME.txt
+#   INSEQ=`grep 'Input sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+#   OUTSEQ=`grep 'Good sequences' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+#   INBAS=`grep 'Input bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+#   OUTBAS=`grep 'Good bases' ./logs/prinseqlog*.txt | cut --delimiter=\  -f6`
+#   echo ' ' >> ./logs/logpercentages$FILENAME.txt
+#   echo 'PrinSeq' >> ./logs/logpercentages$FILENAME.txt
+#   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$FILENAME.txt
+#   echo $INSEQ >> ./logs/logpercentages$FILENAME.txt
+#   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
+#   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$FILENAME.txt
+#   echo $INBAS >> ./logs/logpercentages$FILENAME.txt
+#   echo $OUTBAS >> ./logs/logpercentages$FILENAME.txt
+#   echo 'Good Sequence percentage' >> ./logs/logpercentages$FILENAME.txt
+#   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$FILENAME.txt
+#   echo 'Good Base percentage' >> ./logs/logpercentages$FILENAME.txt
+#   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$FILENAME.txt
 
    cd ..
 
-done
+done < "$input"
 
 #############gmap#############
 #
@@ -216,18 +214,16 @@ done
 #
 # Runs GMAP on the .fastq files from PrinSeq
 # Outputs a .sam file per dataset, divided by project
-"
 # Necessary to build the genome using gmap_build
 
    PATH=$PATH:/home/martasilva/tools/GMAP-2019-01-24/src/
    export PATH #alter to match the localization of the gmap tool
 
 counter=0
-for direc in /home/martasilva/ICfastq/
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   cd $direc
-   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd /home/martasilva/ICdata/BioProjects/
@@ -245,7 +241,7 @@ do
 # Creates a log of the results
 
    cd ..
-done
+done < "$input"
 
 #############samtools#############
 #
@@ -257,11 +253,10 @@ done
 # samtools sort sorts the .sam and outputs as a .bam
 
 counter=0
-for direc in /home/martasilva/ICfastq/
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   cd $direc
-   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd /home/martasilva/ICdata/BioProjects/
@@ -276,7 +271,7 @@ do
 # -o , outputs as a .bam file
 
    cd ..
-done
+done < "$input"
 
 #############featurecounts#############
 #
@@ -288,17 +283,15 @@ done
    export PATH #alter to match the localization of the featureCounts tool
 
 counter=0
-for direc in /home/martasilva/ICdata/Bioprojects/
+for direc in /home/martasilva/ICdata/BioProjects/*
 do
    counter=$((counter+1))
-   FOLDER=`echo $direc | cut --delimiter=/ -f4`
-   PROJECTNAME=`echo $FOLDER | cut -c1-2`
 
    cd $direc
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter 'IC || FEATURECOUNTS ~~~~~~~~~~~~'
 
-   featureCounts -a /home/martasilva/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
+   featureCounts -a /home/martasilva/CorkOak1.0_genomic.gtf -g gene_name -o 'countsIC.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslogIC.txt
 # -a , annotation (gtf/gff)
 # -g , category for the sorting of the alignment (gene_id/gene_name)
 # -o , output as a .txt file
@@ -321,11 +314,10 @@ done
    export PATH #alter to match the localization of the stringtie tool
 
 counter=0
-for direc in /home/martasilva/ICfastq/
+input="/home/martasilva/ICdata/listfilenamesIC.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   cd $direc
-   FILENAME=`ls | grep fastq | cut --delimiter=. -f1`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd /home/martasilva/ICdata/BioProjects/
@@ -333,15 +325,18 @@ do
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
    echo ' '
    echo '      ...calculating TPM/FPKM...'
+   echo ' '
 
    stringtie /home/martasilva/ICdata/BioProjects/$FILENAME.bam -A /home/martasilva/ICdata/BioProjects/abundance$FILENAME -G /home/martasilva/CorkOak1.0_genomic.gtf -o /home/martasilva/ICdata/BioProjects/$FILENAME.gtf
 
    cd ..
-done
+done < "$input"
 
-for direc in /home/martasilva/ICdata/BioProjects/
+for direc in /home/martasilva/ICdata/BioProjects/*
 do
    PROJECTNAME=`echo $direc | cut --delimiter=/ -f6`
+   cd /home/martasilva/ICdata/BioProjects/
+   
    mkdir -p notag
    mkdir -p sickle
    mkdir -p prinseq
