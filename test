@@ -1,6 +1,6 @@
-```sh
+```bash
 for direc in /folder/test/
 do
 echo yeet
 done
-```sh
+```
