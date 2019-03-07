@@ -1,25 +1,21 @@
-   PATH=$PATH:/data/biodata/tools/GMAP/src/
-   export PATH #alter to match the localization of the gmap tool
+   PATH=$PATH:$GMAP
+   export PATH
 
 counter=0
-for SRA_ID in `cat $1`
+input="$DATA/listfilenames454.txt"
+while IFS= read -r FILENAME
 do
-   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
    counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd /data/biodata/454Data/$PROJECTNAME
+   cd $BIO
+
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $SRA_ID '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...thinking...'
+   echo '    ...running gmap...'
 
-   gmap -d QSuber2018 -t 6 -f samse -n 0 ./'ps'*.fastq > /data/biodata/454Data/$PROJECTNAME/$SRA_ID.sam 2> /data/biodata/454Data/$PROJECTNAME/logs/GMAPlog$SRA_ID.txt
-# -d , name of the genome built using gmap_build
-# -t , number of threads
-# -f , codification
-# -n ,
-# Appends results from gmap to a .sam file
-# Creates a log of the results
+   gmap -d QSuber2018 -t 6 -f samse -n 0 $BIO/'ps'$FILENAME'.fastq' > $BIO/$FILENAME.sam 2> $LOGS/'GMAPlog'$FILENAME'.txt'
 
-   cd ..
-done
+  cd ..
+done < "$input"
