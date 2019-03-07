@@ -1,4 +1,3 @@
-#!/bin/bash
    PATH=$PATH:$FEATURECOUNTS
    export PATH
 
