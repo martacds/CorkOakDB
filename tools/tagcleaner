@@ -1,75 +1,46 @@
+   alias tagcleaner='perl $TAGCLEANER/tagcleaner.pl'
+
 counter=0
-for SRA_ID in `cat $1`
+input="$DATA/listfilenames454.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd /data/biodata/454Data/$PROJECTNAME
-   mkdir -p logs #creates the folder for all the dataset's logs
    echo ''
-
-   if [ `echo $SRA_ID | grep RR` ] ; then
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $SRA_ID '~~~~~~~~~~~~'
-
-   tagcleaner -verbose -fastq *RR*.fastq -predict >> ./logs/predict$SRA_ID.txt
-
-   fi
-
-   if [ `grep -s tag5 ./logs/predict$SRA_ID.txt | cut -f2` ] ; then
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $SRA_ID '~~~~~~~~~~~~'
-   TAG=$(grep tag5 ./logs/predict"$SRA_ID".txt | cut -f2)
-   echo $TAG #echos the predicted tag
+
+   cd $FASTQFILES
+   tagcleaner -verbose -fastq $FILENAME.fastq -predict >> $LOGS/'predict'$FILENAME'.txt'
+
+
+   if [ `grep -s tag5 $LOGS/'predict'$FILENAME'.txt' | cut -f2` ] ; then
+
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $FILENAME '~~~~~~~~~~~~'
+
+   TAG=$(grep -s tag5 $LOGS/predict"$FILENAME".txt | cut -f2)
+   echo 'Predicted Tag: ' $TAG
    NNN=$(echo "$TAG" | sed 's/N.*//')
-   echo $NNN #removed Ns from predicted tag
+   echo 'Clean Tag: ' $NNN
 
-   tagcleaner -verbose -fastq *.fastq -tag5 $NNN -mm5 1 -out notag$SRA_ID -log ./logs/tagcleanerlog$SRA_ID.txt
-
-#IN/OUT functions as a downstream quality control for sequences/bases removed/lost
-   INSEQ=$(grep 'Input sequences' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
-   OUTSEQ=$(grep 'Output sequences' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
-   INBAS=$(grep 'Input bases' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
-   OUTBAS=$(grep 'Output bases' ./logs/tagcleaner*.txt | cut --delimiter=\  -f6)
-   echo 'TagCleaner' >> ./logs/logpercentages$SRA_ID.txt
-   echo 'INSEQ , OUTSEQ' >> ./logs/logpercentages$SRA_ID.txt
-   echo $INSEQ >> ./logs/logpercentages$SRA_ID.txt
-   echo $OUTSEQ >> ./logs/logpercentages$SRA_ID.txt
-   echo 'Percentage of kept sequences' >> ./logs/logpercentages$SRA_ID.txt
-   echo "($OUTSEQ * 100) * $INSEQ" | bc -l >> ./logs/logpercentages$SRA_ID.txt
-   echo 'INBAS , OUTBAS' >> ./logs/logpercentages$SRA_ID.txt
-   echo $INBAS >> ./logs/logpercentages$SRA_ID.txt
-   echo $OUTBAS >> ./logs/logpercentages$SRA_ID.txt
-   echo 'Percentage of kept bases' >> ./logs/logpercentages$SRA_ID.txt
-   echo "($OUTBAS * 100) * $INBAS" | bc -l >> ./logs/logpercentages$SRA_ID.txt
-   cd ..
-
-   elif [ `echo $PROJECTNAME | grep IC` ] ; then #iteration for the IC datasets
-   counter=$((counter+1))
-   IC={IC10A , IC25C , IC25H , IC42A , IC42HS , IC5C}
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $IC '~~~~~~~~~~~~'
-   echo ' '
-
-   cp *.fastq ./notag$IC.fastq
-
-   echo '  copied with prefix'
-   echo ' '
-   echo 'TagCleaner' >> ./logs/logpercentages$IC.txt
-   echo 'no sequences/bases removed' >> ./logs/logpercentages$IC.txt
-   cd ..
+   tagcleaner -verbose -fastq $FILENAME.fastq -tag5 $NNN -mm5 1 -out $BIO/notag$FILENAME -log $LOGS/'tagcleanerlog'$FILENAME'.txt'
 
    else #iteration for datasets with no tags
-   counter=$((counter+1))
+
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $SRA_ID '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $FILENAME '~~~~~~~~~~~~'
    echo ' '
 
-   cp *.fastq ./notag$SRA_ID.fastq
+   cp $FILENAME.fastq $BIO/'notag'$FILENAME'.fastq'
 
    echo '	copied with prefix'
    echo ' '
-   echo 'TagCleaner' >> ./logs/logpercentages$SRA_ID.txt
-   echo 'no sequences/bases removed' >> ./logs/logpercentages$SRA_ID.txt
+   echo 'TagCleaner' >> $LOGS/logpercentages$FILENAME.txt
+   echo 'no sequences/bases removed' >> $LOGS/logpercentages$FILENAME.txt
    cd ..
+
    fi
 
-done
+done < "$input"
