@@ -1,0 +1,22 @@
+   PATH=$PATH:$SAMTOOLS
+   export PATH
+
+counter=0
+input="$DATA/listfilenames454.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd $BIO
+
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo '    ...running samtools...'
+   echo ' '
+
+   $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
+
+   cd ..
+
+done < "$input"
