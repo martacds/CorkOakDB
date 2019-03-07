@@ -1,0 +1,19 @@
+   PATH=$PATH:$SICKLE
+   export PATH
+
+counter=0
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
+   cd $BIO
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SICKLE' $FILENAME '~~~~~~~~~~~~'
+
+   sickle pe -q 20 -l 20 -f 'notag'$FILENAME'.fastq' -t sanger -o 'sickle'$FILENAME'.fastq' | tee $LOGS/'sicklelog'$FILENAME'.txt'
+
+   cd ..
+
+done < "$input"
