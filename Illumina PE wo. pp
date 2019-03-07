@@ -1,7 +1,35 @@
-:
-###
+#!/bin/bash
 ##
-##############fastq-dump#############
+#
+# Pipeline for Illumina datasets of RNA-Seq.
+# Without any pre-processing. Assumes that the samples were uploaded to NCBI already pre-processed.
+#
+# fastq-dump : downloads the .fastq files from the SRA number
+# hisat2 : maps sequences to genome built previously (hisat2_build)
+# samtools : converts the .sam into .bam (sorted file)
+# featureCounts : outputs raw counts of alignment
+# stringtie : outputs TPM/FPKM counts
+#
+#
+# Marta Silva, ITQB
+# marcsilva@itqb.unl.pt
+#
+############# CONFIGURATION #############
+#
+HOME=/home/martasilva
+DATA=/home/martasilva/ILLdata
+SRAID=/home/martasilva/ILLdata/ILLfastq/$SRA_ID
+FASTQFILES=/home/martasilva/ILLdata/ILLfastq/$FILENAME
+BIO=/home/martasilva/ILLdata/BioProjects/$PROJECTNAME
+LOGS=/home/martasilva/ILLdata/BioProjects/$PROJECTNAME/logs
+FASTQDUMP=/home/martasilva/tools/SRAtoolkit-2.9.4/bin
+HISAT=/home/martasilva/tools/HISAT2-2.1.0
+SAMTOOLS=/usr/bin
+GTF=/home/martasilva
+FEATURECOUNTS=/home/martasilva/tools/SubRead-v1.6.3/bin
+STRINGTIE=/home/martasilva/tools/StringTie-v1.3.5
+
+############## FASTQ-DUMP #############
 ##
 ## Built using:
 ## https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=fastq-dump
@@ -16,7 +44,7 @@
 ## e.g. ./dwnfastq.sh listSRAnumbers.txt
 ##
 
-   PATH=$PATH:/home/martasilva/tools/SRAtoolkit-2.9.4/bin/
+   PATH=$PATH:$FASTQDUMP
    export PATH
 
 counter=0
@@ -27,24 +55,25 @@ do
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
-   echo '		...getting the file: '$SRA_ID'.fastq'
    echo ' '
-   
-   fastq-dump -I --split-files -O /home/martasilva/IlluminaData/fastqfiles/$SRA_ID $SRA_ID
-   
-   cd /home/martasilva/IlluminaData/fastqfiles/$SRA_ID
-   ls | grep fastq | cut -c1-12 >> /home/martasilva/IlluminaData/listfilenames.txt
-   cd /home/martasilva
-   chmod -R 755 IlluminaData
-   cd /home/martasilva/IlluminaData
+   echo '             ...running fastq-dump...'
+   echo ' '
+
+   fastq-dump -I --split-files -O $SRAID $SRA_ID
+
+   cd $SRAID
+   ls | grep fastq | cut -c1-12 >> $DATA/listfilenamesILL.txt
+   cd $HOME
+   cd $DATA
    mkdir -p BioProjects
    cd BioProjects
    mkdir -p $PROJECTNAME
    cd $PROJECTNAME
    mkdir -p logs
+   
 done
 
-############hisat2#############
+############ HISAT2 #############
 #
 # Built using:
 # http://ccb.jhu.edu/software/hisat2/manual.shtml#running-hisat2
@@ -57,27 +86,29 @@ done
 # Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
 # This is insanely ugly and an alternative is essential.
 
-   PATH=$PATH:/home/martasilva/tools/HISAT2-2.1.0/
-   export PATH #alter to match the localization of the hisat2 tool
+   PATH=$PATH:$HISAT
+   export PATH
 
 counter=0
-for direc in /home/martasilva/data/IlluminaData/fastqfiles/*
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f7`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
-   echo '    ...mapping to genome...'
-   
-   cd $direc
-   hisat2 -t --summary-file /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME/logs/loghisat2$FILENAME.txt -x /home/martasilva/tools/HISAT2-2.1.0/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME/$FILENAME.sam
+   echo ' '
+   echo '            ...running hisat2...'
+   echo ' '
+
+   cd $FASTQFILES
+   hisat2 -t --summary-file $LOGS/'loghisat2'$FILENAME'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S $BIO/$FILENAME'.sam'
 
    cd ..
-done
+done < "$input"
 
-#############samtools#############
+############# SAMTOOLS #############
 #
 # Built using:
 # information in ESTsColdHeat_processing
@@ -86,56 +117,54 @@ done
 # samtools view 'opens' the .sam file
 # samtools sort sorts the .sam and outputs as a .bam
 
+PATH=$PATH:$SAMTOOLS
+export PATH
+
 counter=0
-for direc in /home/martasilva/data/IlluminaData/fastqfiles/*
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f7`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...converting .sam into sorted .bam...'
+   echo '    ...running samtools...'
    echo ' '
-   
-   cd /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME
-   samtools view -u $FILENAME.sam | samtools sort -o $FILENAME.bam
-   
-# -u , opens as uncompressed .sam file
-# -o , outputs as a .bam file
+
+   cd $BIO
+   $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
 
    cd ..
-done
 
-#############featurecounts#############
+done < "$input"
+
+############# FEATURECOUNTS #############
 #
 # Built using:
 # http://bioinf.wehi.edu.au/featureCounts/
 #
 
-   PATH=$PATH:/home/martasilva/tools/SubRead-v1.6.3/bin/
-   export PATH #alter to match the localization of the featureCounts tool
+   PATH=$PATH:$FEATURECOUNTS
+   export PATH
 
 counter=0
-for direc in /home/martasilva/data/IlluminaData/BioProjects/*
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   PROJECTNAME=`echo $direc | cut --delimiter=/ -f7`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
-   
-   cd /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME
-   featureCounts -a /home/martasilva/data/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' ./*.bam 2>&1 | tee -a ./logs/featurecountslog$PROJECTNAME.txt
-# -a , annotation (gtf/gff)
-# -g , category for the sorting of the alignment (gene_id/gene_name)
-# -o , output as a .txt file
-# 2>&1 | tee , will append to a log file and print it on the screen
+
+   cd $BIO
+   featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/$FILENAME'.bam' 2>&1 | tee -a $LOGS/'featurecountslog'$PROJECTNAME'.txt'
 
    cd ..
-done
+done < "$input"
 
-#############stringtie#############
+############# STRINGTIE #############
 #
 # Built using:
 # https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
@@ -145,47 +174,47 @@ done
 #
 # Needs the indication of a reference genome as a .gtf file
 
-   PATH=$PATH:/home/martasilva/tools/StringTie-v1.3.5/
-   export PATH #alter to match the localization of the stringtie tool
+   PATH=$PATH:$STRINGTIE
+   export PATH
 
 counter=0
-for direc in /home/martasilva/data/IlluminaData/fastqfiles/*
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
 do
    counter=$((counter+1))
-   FILENAME=`echo $direc | cut --delimiter=/ -f7`
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
    echo ' '
-   echo '      ...calculating TPM/FPKM...'
-   echo ' '
-     
-   cd /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME
-   stringtie /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME/$FILENAME.bam -e -B -A /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME/abundance$FILENAME -G /home/martasilva/data/CorkOak1.0_genomic.gtf -o /home/martasilva/data/IlluminaData/BioProjects/$PROJECTNAME/$FILENAME.gtf
+   echo '      ...running stringtie...'
+
+   cd $BIO
+   stringtie $BIO/$FILENAME'.bam' -e -B -A $BIO/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/$FILENAME'.gtf'
 
    cd ..
-done
+done < "$input"
 
-#############housekeeping#############
+############# HOUSEKEEPING #############
 #
 # sorts output files into folders divided by tool
 #
 
-for direc in /home/martasilva/data/IlluminaData/BioProjects/*
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
 do
-   PROJECTNAME=`echo $direc | cut --delimiter=/ -f7`
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $direc
+   cd $BIO
 
+   mkdir -p hisat2
    mkdir -p bam
    mkdir -p featurecounts
    mkdir -p stringtie
-   mkdir -p sam
 
    mv *.bam ./bam
+   mv *.sam ./hisat2
    mv abundance* ./stringtie
-   mv *gtf ./stringtie
+   mv *.gtf ./stringtie
    mv counts* ./featurecounts
-   mv *sam ./sam
 
-done
+done < "$input"
