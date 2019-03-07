@@ -1,4 +1,4 @@
-   PATH=$PATH:~/Documents/tools/fastq-dump/bin/
+   PATH=$PATH:$FASTQDUMP
    export PATH
 
 counter=0
@@ -6,8 +6,23 @@ for SRA_ID in `cat $1`
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
-   
+
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
-   fastq-dump -O /data/biodata/454Data/$SRA_ID $SRA_ID
+   echo ' '
+   echo '             ...running fastq-dump...'
+   echo ' '
+
+   fastq-dump -O $SRAID $SRA_ID
+
+   cd $SRAID
+   ls | grep fastq | cut -c1-12 >> $DATA/listfilenames454.txt
+   cd $HOME
+   cd $DATA
+   mkdir -p BioProjects
+   cd BioProjects
+   mkdir -p $PROJECTNAME
+   cd $PROJECTNAME
+   mkdir -p logs
+
 done
