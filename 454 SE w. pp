@@ -53,29 +53,22 @@ STRINGTIE=/data/biodata/tools/StringTie
    export PATH
 
 counter=0
-for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
+for SRA_ID in `cat $1`
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
    echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
    echo ' '
-   echo '	                 	...running fastq-dump...'
+   echo '             ...running fastq-dump...'
    echo ' '
 
    fastq-dump -O $SRAID $SRA_ID
 
    cd $SRAID
-   ls | grep fastq | cut -c1-9 >> $DATA/listfilenames454.txt
-done
-
-input="$DATA/listfilenames454.txt"
-while IFS= read -r FILENAME
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-
+   ls | grep fastq | cut -c1-12 >> $DATA/listfilenames454.txt
+   cd $HOME
    cd $DATA
    mkdir -p BioProjects
    cd BioProjects
@@ -83,7 +76,7 @@ do
    cd $PROJECTNAME
    mkdir -p logs
 
-done < "$input"
+done
 
 ############# TAGCLEANER #############
 #
@@ -354,6 +347,5 @@ do
    mv *.gtf ./stringtie
    mv counts* ./featurecounts
    mv ps* ./prinseq
-   mv *ctab ./stringtie
 
 done < "$input"
