@@ -1,7 +1,9 @@
-for direc in /data/biodata/454Data/*
+input="$DATA/listfilenames454.txt"
+while IFS= read -r FILENAME
 do
-   PROJECTNAME=`echo $direc | cut --delimiter=/ -f5`
-   cd $PROJECTNAME
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   cd $BIO
+
    mkdir -p notag
    mkdir -p sickle
    mkdir -p prinseq
@@ -18,4 +20,5 @@ do
    mv *.gtf ./stringtie
    mv counts* ./featurecounts
    mv ps* ./prinseq
-done
+
+done < "$input"
