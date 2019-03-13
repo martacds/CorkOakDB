@@ -18,10 +18,7 @@
 #
 HOME=/home/martasilva
 DATA=/home/martasilva/ILLdata
-SRAID=/home/martasilva/ILLdata/ILLfastq/$SRA_ID
-FASTQFILES=/home/martasilva/ILLdata/ILLfastq/$FILENAME
-BIO=/home/martasilva/ILLdata/BioProjects/$PROJECTNAME
-LOGS=/home/martasilva/ILLdata/BioProjects/$PROJECTNAME/logs
+BIO=/home/martasilva/ILLdata/BioProjects
 FASTQDUMP=/home/martasilva/tools/SRAtoolkit-2.9.4/bin
 HISAT=/home/martasilva/tools/HISAT2-2.1.0
 SAMTOOLS=/usr/bin
@@ -44,9 +41,6 @@ STRINGTIE=/home/martasilva/tools/StringTie-v1.3.5
 ## e.g. ./dwnfastq.sh listSRAnumbers.txt
 ##
 
-   PATH=$PATH:$FASTQDUMP
-   export PATH
-
 counter=0
 for SRA_ID in `cat $1`
 do
@@ -56,22 +50,30 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
    echo ' '
-   echo '             ...running fastq-dump...'
+   echo '             ...**&**...'
    echo ' '
 
-   fastq-dump -I --split-files -O $SRAID $SRA_ID
+   $FASTQDUMP/fastq-dump -I --split-files -O $FASTQFILES $SRA_ID
 
-   cd $SRAID
-   ls | grep fastq | cut -c1-12 >> $DATA/listfilenamesILL.txt
-   cd $HOME
+done
+
+   cd $FASTQFILES
+   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesILL.txt
+
+input="$DATA/listfilenamesILL.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
    cd $DATA
    mkdir -p BioProjects
    cd BioProjects
    mkdir -p $PROJECTNAME
    cd $PROJECTNAME
    mkdir -p logs
-   
-done
+
+done < "$input"
 
 ############ HISAT2 #############
 #
@@ -86,9 +88,6 @@ done
 # Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
 # This is insanely ugly and an alternative is essential.
 
-   PATH=$PATH:$HISAT
-   export PATH
-
 counter=0
 input="$DATA/listfilenamesILL.txt"
 while IFS= read -r FILENAME
@@ -99,11 +98,11 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
    echo ' '
-   echo '            ...running hisat2...'
+   echo '            ......**&**......'
    echo ' '
 
    cd $FASTQFILES
-   hisat2 -t --summary-file $LOGS/'loghisat2'$FILENAME'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S $BIO/$FILENAME'.sam'
+   $HISAT/hisat2 -t --summary-file $BIO/"$PROJECTNAME"/logs/'loghisat2'$FILENAME'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S $BIO/"$PROJECTNAME"/$FILENAME'.sam'
 
    cd ..
 done < "$input"
@@ -117,9 +116,6 @@ done < "$input"
 # samtools view 'opens' the .sam file
 # samtools sort sorts the .sam and outputs as a .bam
 
-PATH=$PATH:$SAMTOOLS
-export PATH
-
 counter=0
 input="$DATA/listfilenamesILL.txt"
 while IFS= read -r FILENAME
@@ -129,10 +125,10 @@ do
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...running samtools...'
+   echo '    ......**&**......'
    echo ' '
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
    $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
 
    cd ..
@@ -145,9 +141,6 @@ done < "$input"
 # http://bioinf.wehi.edu.au/featureCounts/
 #
 
-   PATH=$PATH:$FEATURECOUNTS
-   export PATH
-
 counter=0
 input="$DATA/listfilenamesILL.txt"
 while IFS= read -r FILENAME
@@ -158,8 +151,8 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
-   cd $BIO
-   featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/$FILENAME'.bam' 2>&1 | tee -a $LOGS/'featurecountslog'$PROJECTNAME'.txt'
+   cd $BIO/"$PROJECTNAME"
+   $FEATURECOUNTS/featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/"$PROJECTNAME"/$FILENAME'.bam' 2>&1 | tee -a $BIO/"$PROJECTNAME"/logs/'featurecountslog'$PROJECTNAME'.txt'
 
    cd ..
 done < "$input"
@@ -174,9 +167,6 @@ done < "$input"
 #
 # Needs the indication of a reference genome as a .gtf file
 
-   PATH=$PATH:$STRINGTIE
-   export PATH
-
 counter=0
 input="$DATA/listfilenamesILL.txt"
 while IFS= read -r FILENAME
@@ -186,10 +176,10 @@ do
 
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
    echo ' '
-   echo '      ...running stringtie...'
+   echo '      ......**&**......'
 
-   cd $BIO
-   stringtie $BIO/$FILENAME'.bam' -e -B -A $BIO/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/$FILENAME'.gtf'
+   cd $BIO/"$PROJECTNAME"
+   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$FILENAME'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$FILENAME'.gtf'
 
    cd ..
 done < "$input"
@@ -204,12 +194,13 @@ while IFS= read -r FILENAME
 do
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    mkdir -p hisat2
    mkdir -p bam
    mkdir -p featurecounts
    mkdir -p stringtie
+
 
    mv *.bam ./bam
    mv *.sam ./hisat2
