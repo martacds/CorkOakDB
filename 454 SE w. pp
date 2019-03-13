@@ -21,10 +21,8 @@
 #
 HOME=/data/biodata
 DATA=/data/biodata/454data
-SRAID=/data/biodata/454data/454fastq/$SRA_ID
-FASTQFILES=/data/biodata/454data/454fastq/$FILENAME
-BIO=/data/biodata/454data/BioProjects/$PROJECTNAME
-LOGS=/data/biodata/454data/BioProjects/$PROJECTNAME/logs
+FASTQFILES=/data/biodata/454data/454fastq
+BIO=/data/biodata/454data/BioProjects/
 FASTQDUMP=/data/biodata/tools/fastq-dump/bin
 TAGCLEANER=/data/biodata/tools/TagCleaner
 SICKLE=/data/biodata/tools/sickle-master
@@ -49,26 +47,31 @@ STRINGTIE=/data/biodata/tools/StringTie
 # When using, indicate path to the command followed by the list of SRA numbers.
 # e.g. ./dwnfastq.sh listSRAnumbers.txt
 
-   PATH=$PATH:$FASTQDUMP
-   export PATH
-
 counter=0
-for SRA_ID in `cat $1`
+for SRA_ID in `cat $1` #list of SRA numbers will function as cat 1
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $SRA_ID | cut -c1-6`
 
    echo ' '
-   echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
    echo ' '
-   echo '             ...running fastq-dump...'
+   echo '	           	...running fastq-dump...'
    echo ' '
 
-   fastq-dump -O $SRAID $SRA_ID
+   $FASTQDUMP/fastq-dump -O $FASTQFILES $SRA_ID
 
-   cd $SRAID
-   ls | grep fastq | cut -c1-12 >> $DATA/listfilenames454.txt
-   cd $HOME
+done
+
+   cd $FASTQFILES
+   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenames454.txt
+
+input="$DATA/listfilenames454.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+
    cd $DATA
    mkdir -p BioProjects
    cd BioProjects
@@ -76,7 +79,7 @@ do
    cd $PROJECTNAME
    mkdir -p logs
 
-done
+done < "$input"
 
 ############# TAGCLEANER #############
 #
@@ -92,8 +95,6 @@ done
 # One percentages log per dataset
 #
 
-   alias tagcleaner='perl $TAGCLEANER/tagcleaner.pl'
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -101,40 +102,43 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
+   cd $FASTQFILES
+
    echo ''
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $FILENAME '~~~~~~~~~~~~'
    echo ' '
+   echo ' 		...predicting tag...'
 
-   cd $FASTQFILES
-   tagcleaner -verbose -fastq $FILENAME.fastq -predict >> $LOGS/'predict'$FILENAME'.txt'
+   perl $TAGCLEANER/tagcleaner.pl -verbose -fastq $FILENAME.fastq -predict >> $BIO/$PROJECTNAME/logs/predict$FILENAME.txt
 
-
-   if [ `grep -s tag5 $LOGS/'predict'$FILENAME'.txt' | cut -f2` ] ; then
-
+   if [ `grep -s tag5 $BIO/"$PROJECTNAME"/logs/'predict'$FILENAME'.txt' | cut -f2` ] ; then
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $FILENAME '~~~~~~~~~~~~'
 
-   TAG=$(grep -s tag5 $LOGS/predict"$FILENAME".txt | cut -f2)
-   echo 'Predicted Tag: ' $TAG
+   TAG=$(grep tag5 $BIO/"$PROJECTNAME"/logs/'predict'$FILENAME'.txt' | cut -f2)
+   echo $TAG #echos the predicted tag
    NNN=$(echo "$TAG" | sed 's/N.*//')
-   echo 'Clean Tag: ' $NNN
+   echo $NNN #removed Ns from predicted tag
 
-   tagcleaner -verbose -fastq $FILENAME.fastq -tag5 $NNN -mm5 1 -out $BIO/notag$FILENAME -log $LOGS/'tagcleanerlog'$FILENAME'.txt'
+   perl $TAGCLEANER/tagcleaner.pl -verbose -fastq $FILENAME.fastq -tag5 $NNN -mm5 1 -out $BIO/"$PROJECTNAME"/notag$FILENAME -log $BIO/"$PROJECTNAME"/logs/'tagcleanerlog'$FILENAME'.txt'
+
+   cd ..
 
    else #iteration for datasets with no tags
-
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $FILENAME '~~~~~~~~~~~~'
    echo ' '
 
-   cp $FILENAME.fastq $BIO/'notag'$FILENAME'.fastq'
+   cd $FASTQFILES
+   cp $FILENAME.fastq $BIO/"$PROJECTNAME"
+   cd $BIO/"$PROJECTNAME"
+   mv $FILENAME.fastq 'notag'$FILENAME'.fastq'
 
-   echo '	copied with prefix'
+   echo '  copied with prefix'
    echo ' '
-   echo 'TagCleaner' >> $LOGS/logpercentages$FILENAME.txt
-   echo 'no sequences/bases removed' >> $LOGS/logpercentages$FILENAME.txt
+   echo 'TagCleaner' >> $BIO/"$PROJECTNAME"/logs/logpercentages$FILENAME.txt
+   echo 'no sequences/bases removed' >> $BIO/"$PROJECTNAME"/logs/logpercentages$FILENAME.txt
    cd ..
-
    fi
 
 done < "$input"
@@ -147,9 +151,6 @@ done < "$input"
 # Runs Sickle on the .fastq files form tagcleaner.
 # Improves the overall quality of the dataset
 
-   PATH=$PATH:$SICKLE
-   export PATH
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -157,11 +158,11 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SICKLE' $FILENAME '~~~~~~~~~~~~'
 
-   sickle se -q 20 -l 100 -f 'notag'$FILENAME'.fastq' -t sanger -o 'sickle'$FILENAME'.fastq' | tee $LOGS/'sicklelog'$FILENAME'.txt'
+   $SICKLE/sickle se -q 20 -l 100 -f 'notag'$FILENAME'.fastq' -t sanger -o 'sickle'$FILENAME'.fastq' | tee $BIO/"$PROJECTNAME"/logs/'sicklelog'$FILENAME'.txt'
 
    cd ..
 
@@ -177,11 +178,6 @@ done < "$input"
 # Trims a % form the right (set as 5), which will remove the Ns from the end of the sequence
 # Outputs good and bad sequences, and creates a log
 
-   PATH=$PATH:$PRINSEQ
-   export PATH
-
-   alias prinseq='perl $PRINSEQ/prinseq-lite.pl'
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -189,12 +185,12 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| PRINSEQ' $FILENAME '~~~~~~~~~~~~'
 
-   prinseq -verbose -trim_qual_left 20 -trim_right_p 5 -fastq 'sickle'$FILENAME'.fastq' -out_good 'ps'$FILENAME -out_bad 'psBAD'$FILENAME -log $LOGS/'prinseqlog'$FILENAME'.txt'
+   perl $PRINSEQ/prinseq-lite.pl -verbose -trim_qual_left 20 -trim_right_p 5 -fastq 'sickle'$FILENAME'.fastq' -out_good 'ps'$FILENAME -out_bad 'psBAD'$FILENAME -log $BIO/"$PROJECTNAME"/logs/'prinseqlog'$FILENAME'.txt'
 
    cd ..
 
@@ -209,9 +205,6 @@ done < "$input"
 # Outputs a .sam file per dataset, divided by project
 # Necessary to build the genome using gmap_build
 
-   PATH=$PATH:$GMAP
-   export PATH
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -219,14 +212,14 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
    echo ' '
    echo '    ...running gmap...'
 
-   gmap -d QSuber2018 -t 6 -f samse -n 0 $BIO/'ps'$FILENAME'.fastq' > $BIO/$FILENAME.sam 2> $LOGS/'GMAPlog'$FILENAME'.txt'
+   $GMAP/gmap -d QSuber2018 -t 3 -f samse -n 0 $BIO/"$PROJECTNAME"/'ps'$FILENAME'.fastq' > $BIO/"$PROJECTNAME"/$FILENAME.sam 2> $BIO/"$PROJECTNAME"/logs/'GMAPlog'$FILENAME'.txt'
 
   cd ..
 done < "$input"
@@ -240,9 +233,6 @@ done < "$input"
 # samtools view 'opens' the .sam file
 # samtools sort sorts the .sam and outputs as a .bam
 
-   PATH=$PATH:$SAMTOOLS
-   export PATH
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -250,7 +240,7 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
@@ -269,9 +259,6 @@ done < "$input"
 # http://bioinf.wehi.edu.au/featureCounts/
 #
 
-   PATH=$PATH:$FEATURECOUNTS
-   export PATH
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -279,12 +266,12 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
-   featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/$FILENAME'.bam' 2>&1 | tee -a $LOGS/'featurecountslog'$PROJECTNAME'.txt'
+   $FEATURECOUNTS/featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/"$PROJECTNAME"/$FILENAME'.bam' 2>&1 | tee -a $BIO/"$PROJECTNAME"/logs/'featurecountslog'$PROJECTNAME'.txt'
 
    cd ..
 done < "$input"
@@ -299,9 +286,6 @@ done < "$input"
 #
 # Needs the indication of a reference genome as a .gtf file
 
-   PATH=$PATH:$STRINGTIE
-   export PATH
-
 counter=0
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -309,13 +293,13 @@ do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
    echo ' '
    echo '      ...running stringtie...'
 
-   stringtie $BIO/$FILENAME'.bam' -e -B -A $BIO/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/$FILENAME'.gtf'
+   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$FILENAME'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$FILENAME'.gtf'
 
    cd ..
 done < "$input"
@@ -329,7 +313,7 @@ input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   cd $BIO
+   cd $BIO/"$PROJECTNAME"
 
    mkdir -p notag
    mkdir -p sickle
@@ -347,5 +331,6 @@ do
    mv *.gtf ./stringtie
    mv counts* ./featurecounts
    mv ps* ./prinseq
+   mv *ctab ./stringtie
 
 done < "$input"
