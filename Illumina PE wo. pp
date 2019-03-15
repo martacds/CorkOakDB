@@ -16,15 +16,20 @@
 #
 ############# CONFIGURATION #############
 #
+### FOLDERS ###
 HOME=/home/martasilva
 DATA=/home/martasilva/ILLdata
-BIO=/home/martasilva/ILLdata/BioProjects
+BIO=/home/martasilva/ILLdata/BioProjects #folder for output files, divided by BioProject
+FASTQFILES=/home/martasilva/ILLdata/ILLfastq #folder for .fastq files
+### TOOLS ###
 FASTQDUMP=/home/martasilva/tools/SRAtoolkit-2.9.4/bin
 HISAT=/home/martasilva/tools/HISAT2-2.1.0
 SAMTOOLS=/usr/bin
-GTF=/home/martasilva
 FEATURECOUNTS=/home/martasilva/tools/SubRead-v1.6.3/bin
 STRINGTIE=/home/martasilva/tools/StringTie-v1.3.5
+### GENOME ###
+GTF=/home/martasilva #folder for genome file
+GENOME=CorkOak1.0_genomic.gtf #name of the genome file
 
 ############## FASTQ-DUMP #############
 ##
