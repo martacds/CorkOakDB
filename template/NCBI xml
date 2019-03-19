@@ -1,0 +1,44 @@
+<BioSampleSet>
+<BioSample access="public" publication_date="2015-03-28T06:57:28.973" last_update="2015-03-28T06:57:28.973" submission_date="2014-07-24T03:44:21.537" id="2935533" accession="SAMN02935533">
+   <Ids>
+     <Id db="BioSample" is_primary="1">missing</Id>
+     <Id db_label="Sample name">missing</Id>
+     <Id db="SRA">SRS716795</Id>
+   </Ids>
+   <Description>
+     <Title>missing</Title>
+     <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+       <OrganismName>Quercus suber</OrganismName>
+     </Organism>
+   </Description>
+   <Owner>
+     <Name>missing</Name>
+     <Contacts>
+       <Contact email="missing">
+         <Name>
+           <First>missing</First>
+           <Last>missing</Last>
+         </Name>
+       </Contact>
+     </Contacts>
+   </Owner>
+   <Models>
+     <Model>Plant</Model>
+   </Models>
+   <Attributes>
+     <Attribute attribute_name="cultivar" harmonized_name="cultivar" display_name="cultivar">Quercus suber</Attribute>
+     <Attribute attribute_name="biomaterial_provider" harmonized_name="biomaterial_provider" display_name="biomaterial provider">missing</Attribute>
+     <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">missing</Attribute>
+     <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">missing</Attribute>
+     <Attribute attribute_name="age" harmonized_name="age" display_name="age">missing</Attribute>
+     <Attribute attribute_name="Description" harmonized_name="description" display_name="description">missing</Attribute>
+     <Attribute attribute_name="Alias">missing</Attribute>
+     <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">missing</Attribute>
+     <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">missing</Attribute>
+     <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">missing</Attribute>
+   </Attributes>
+   <Links/>
+   <Status when="2015-03-28T06:57:28.973" status="live"/>
+ </BioSample>
+
+ </BioSampleSet>
