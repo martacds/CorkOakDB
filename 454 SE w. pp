@@ -20,21 +20,21 @@
 ############# CONFIGURATION #############
 #
 ### FOLDERS ###
-HOME=/data/biodata
-DATA=/data/biodata/454data
-FASTQFILES=/data/biodata/454data/454fastq #folder for .fastq files
-BIO=/data/biodata/454data/BioProjects/ #folder for output files, divided by BioProject
+HOME=/data/martasilva/
+DATA=/data/martasilva/454data
+FASTQFILES=/data/martasilva/454data/454fastq #folder for .fastq files
+BIO=/data/martasilva/454data/BioProjects/ #folder for output files, divided by BioProject
 ### TOOLS ###
-FASTQDUMP=/data/biodata/tools/fastq-dump/bin
-TAGCLEANER=/data/biodata/tools/TagCleaner
-SICKLE=/data/biodata/tools/sickle-master
-PRINSEQ=/data/biodata/tools/PrinSeq
-GMAP=/data/biodata/tools/gmap-2018-07-04/bin
-SAMTOOLS=/data/biodata/tools/samtools-1.9/bin
-FEATURECOUNTS=/data/biodata/tools/SubRead/bin
-STRINGTIE=/data/biodata/tools/StringTie
+FASTQDUMP=/home/martasilva/tools/SRAtoolkit-2.9.4/bin
+TAGCLEANER=/home/martasilva/tools/TagCleaner-0.16
+SICKLE=/home/martasilva/tools/sickle-1.33
+PRINSEQ=/home/martasilva/tools/PrinSeq-0.20.4
+GMAP=/home/martasilva/tools/GMAP-2018-07-04/bin
+SAMTOOLS=/usr/bin/samtools
+FEATURECOUNTS=/home/martasilva/tools/SubRead-v1.6.3/bin
+STRINGTIE=/home/martasilva/tools/StringTie-v1.3.5
 ### GENOME ###
-GTF=/data/biodata/rawdata #folder of genome file
+GTF=/data/martasilva #folder of genome file
 GENOME=CorkOak1.0_genomic.gtf #name of the genome file
 
 ############# FASTQ-DUMP #############
@@ -60,7 +60,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
    echo ' '
-   echo '	           	...running fastq-dump...'
+   echo '	           	...**&**...'
    echo ' '
 
    $FASTQDUMP/fastq-dump -O $FASTQFILES $SRA_ID
@@ -111,7 +111,7 @@ do
    echo ''
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo ' 		...predicting tag...'
+   echo ' 		...**&**...'
 
    perl $TAGCLEANER/tagcleaner.pl -verbose -fastq $FILENAME.fastq -predict >> $BIO/$PROJECTNAME/logs/predict$FILENAME.txt
 
@@ -221,7 +221,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...running gmap...'
+   echo '    ...**&**...'
 
    $GMAP/gmap -d QSuber2018 -t 3 -f samse -n 0 $BIO/"$PROJECTNAME"/'ps'$FILENAME'.fastq' > $BIO/"$PROJECTNAME"/$FILENAME.sam 2> $BIO/"$PROJECTNAME"/logs/'GMAPlog'$FILENAME'.txt'
 
@@ -248,7 +248,7 @@ do
 
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
    echo ' '
-   echo '    ...running samtools...'
+   echo '    ...**&**...'
    echo ' '
 
    $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
@@ -301,7 +301,7 @@ do
 
    echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
    echo ' '
-   echo '      ...running stringtie...'
+   echo '      ...**&**...'
 
    $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$FILENAME'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$FILENAME'.gtf'
 
