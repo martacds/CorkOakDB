@@ -23,14 +23,14 @@
 HOME=/data/martasilva/
 DATA=/data/martasilva/454data
 FASTQFILES=/data/martasilva/454data/454fastq #folder for .fastq files
-BIO=/data/martasilva/454data/BioProjects/ #folder for output files, divided by BioProject
+BIO=/data/martasilva/454data/BioProjects #folder for output files, divided by BioProject
 ### TOOLS ###
 FASTQDUMP=/home/martasilva/tools/SRAtoolkit-2.9.4/bin
 TAGCLEANER=/home/martasilva/tools/TagCleaner-0.16
 SICKLE=/home/martasilva/tools/sickle-1.33
 PRINSEQ=/home/martasilva/tools/PrinSeq-0.20.4
-GMAP=/home/martasilva/tools/GMAP-2018-07-04/bin
-SAMTOOLS=/usr/bin/samtools
+GMAP=/home/martasilva/tools/gmap-2018-07-04/bin
+SAMTOOLS=/usr/bin
 FEATURECOUNTS=/home/martasilva/tools/SubRead-v1.6.3/bin
 STRINGTIE=/home/martasilva/tools/StringTie-v1.3.5
 ### GENOME ###
@@ -67,8 +67,14 @@ do
 
 done
 
+############# AND I SAID LET THERE BE LISTS AND FOLDERS #############
+#
+# creates lists for the filenames and projectnames
+# creates the BioProjects and logs folders
+#
    cd $FASTQFILES
    ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenames454.txt
+   ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnames454.txt
 
 input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
@@ -223,7 +229,7 @@ do
    echo ' '
    echo '    ...**&**...'
 
-   $GMAP/gmap -d QSuber2018 -t 3 -f samse -n 0 $BIO/"$PROJECTNAME"/'ps'$FILENAME'.fastq' > $BIO/"$PROJECTNAME"/$FILENAME.sam 2> $BIO/"$PROJECTNAME"/logs/'GMAPlog'$FILENAME'.txt'
+   $GMAP/gmap -d QSuber18 -t 5 -f samse -n 0 $BIO/"$PROJECTNAME"/'ps'$FILENAME'.fastq' > $BIO/"$PROJECTNAME"/$FILENAME.sam 2> $BIO/"$PROJECTNAME"/logs/'GMAPlog'$FILENAME'.txt'
 
   cd ..
 done < "$input"
@@ -264,11 +270,9 @@ done < "$input"
 #
 
 counter=0
-input="$DATA/listfilenames454.txt"
-while IFS= read -r FILENAME
+input="$DATA/listprojectnames454.txt"
+while IFS= read -r PROJECTNAME
 do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd $BIO/"$PROJECTNAME"
 
@@ -313,10 +317,9 @@ done < "$input"
 # sorts output files into folders divided by tool
 #
 
-input="$DATA/listfilenames454.txt"
-while IFS= read -r FILENAME
+input="$DATA/listprojectnames454.txt"
+while IFS= read -r PROJECTNAME
 do
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
    cd $BIO/"$PROJECTNAME"
 
    mkdir -p notag
