@@ -19,19 +19,20 @@
 #
 ### FOLDER ###
 HOME=/data/biodata
-DATA=/data/biodata/ICdata
-FASTQFILES=/data/biodata/ICdata/ICfastq #folder for .fastq files
-BIO=/data/biodata/ICdata/BioProjects #folder for output files, divided by BioProject
-LOGS=/data/biodata/ICdata/BioProjects/logs
+DATA=$HOME/ICdata
+FASTQFILES=$DATA/ICfastq #folder for .fastq files
+BIO=$DATA/BioProjects #folder for output files, divided by BioProject
+LOGS=$DATA/BioProjects/logs
 ### TOOLS ###
-FASTQDUMP=/data/biodata/tools/fastq-dump/bin
-TAGCLEANER=/data/biodata/tools/TagCleaner
-SICKLE=/data/biodata/tools/sickle-master
-PRINSEQ=/data/biodata/tools/PrinSeq
-GMAP=/data/biodata/tools/gmap-2018-07-04/bin
-SAMTOOLS=/data/biodata/tools/samtools-1.9/bin
-FEATURECOUNTS=/data/biodata/tools/SubRead/bin
-STRINGTIE=/data/biodata/tools/StringTie
+TOOLS=/data/biodata/tools
+FASTQDUMP=$TOOLS/fastq-dump/bin
+TAGCLEANER=$TOOLS/TagCleaner
+SICKLE=$TOOLS/sickle-master
+PRINSEQ=$TOOLS/PrinSeq
+GMAP=$TOOLS/gmap-2018-07-04/bin
+SAMTOOLS=$TOOLS/samtools-1.9/bin
+FEATURECOUNTS=$TOOLS/SubRead/bin
+STRINGTIE=$TOOLS/StringTie
 ### GENOME ###
 GTF=/data/biodata/rawdata #folder for the genome file
 GENOME=CorkOak1.0_genomic.gtf #name of the genome file
