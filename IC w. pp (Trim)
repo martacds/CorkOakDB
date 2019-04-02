@@ -1,0 +1,272 @@
+#!/bin/bash
+
+############# CONFIGURATION #############
+#
+### FOLDERS ###
+HOME=/data/martasilva
+DATA=$HOME/ICdata
+FASTQFILES=$DATA/ICfastq #folder for .fastq files
+BIO=$DATA/BioProjects #folder for output files, divided by BioProject
+### TOOLS ###
+TOOLS=/home/martasilva/tools
+TAGCLEANER=$TOOLS/TagCleaner-0.16
+GMAP=$TOOLS/gmap-2018-07-04/bin
+SAMTOOLS=/usr/bin
+FEATURECOUNTS=$TOOLS/SubRead-v1.6.3/bin
+STRINGTIE=$TOOLS/StringTie-v1.3.5
+TRIMMOMATIC=$TOOLS/Trimmomatic-0.38
+### GENOME ###
+GTF=/data/martasilva #folder of genome file
+GENOME=CorkOak1.0_genomic.gtf #name of the genome file
+
+
+############# AND I SAID LET THERE BE LISTS AND FOLDERS #############
+#
+# creates lists for the filenames and projectnames
+# creates the BioProjects and logs folders
+#
+   cd $FASTQFILES
+   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesIC.txt
+   ls | grep fastq | cut -c1-2 | sort | uniq >> $DATA/listprojectnamesIC.txt
+
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $DATA
+   mkdir -p BioProjects
+   cd BioProjects
+   mkdir -p $PROJECTNAME
+   cd $PROJECTNAME
+   mkdir -p logs
+
+done < "$input"
+
+
+############# TAGCLEANER #############
+#
+# Built using:
+# http://tagcleaner.sourceforge.net/manual.html#STANDALONE
+#
+# Predicts the tag 5' of the .fastq file
+# If a tag is present it removes it. If there is no tag, nothing happens.
+# In both cases it outputs a file with the prefix 'notag'
+#
+# Creates a log of the process
+# Creates a file to log the numbers and percentages of each command.
+# One percentages log per dataset
+#
+
+counter=0
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $FASTQFILES
+
+   echo ''
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| TAGCLEANER PREDICT' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo ' 		...**&**...'
+
+   perl $TAGCLEANER/tagcleaner.pl -verbose -fastq $FILENAME.sff.fastq -predict >> $BIO/$PROJECTNAME/logs/predict$FILENAME.txt
+
+   if [ `grep -s tag5 $BIO/"$PROJECTNAME"/logs/'predict'$FILENAME'.txt' | cut -f2` ] ; then
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| CLEANING TAG5' $FILENAME '~~~~~~~~~~~~'
+
+   TAG=$(grep tag5 $BIO/"$PROJECTNAME"/logs/'predict'$FILENAME'.txt' | cut -f2)
+   echo $TAG #echos the predicted tag
+   NNN=$(echo "$TAG" | sed 's/N.*//')
+   echo $NNN #removed Ns from predicted tag
+
+   perl $TAGCLEANER/tagcleaner.pl -verbose -fastq $FILENAME.sff.fastq -tag5 $NNN -mm5 1 -out $BIO/"$PROJECTNAME"/notag$FILENAME -log $BIO/"$PROJECTNAME"/logs/'tagcleanerlog'$FILENAME'.txt'
+
+   cd ..
+
+   else #iteration for datasets with no tags
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| NO TAG' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+
+   cd $FASTQFILES
+   cp $FILENAME.fastq $BIO/"$PROJECTNAME"
+   cd $BIO/"$PROJECTNAME"
+   mv $FILENAME.fastq 'notag'$FILENAME'.fastq'
+
+   echo '  copied with prefix'
+   echo ' '
+   echo 'TagCleaner' >> $BIO/"$PROJECTNAME"/logs/logpercentages$FILENAME.txt
+   echo 'no sequences/bases removed' >> $BIO/"$PROJECTNAME"/logs/logpercentages$FILENAME.txt
+   cd ..
+   fi
+
+done < "$input"
+
+#############trimmomatic#############
+#
+# http://www.usadellab.org/cms/index.php?page=trimmomatic
+#
+#
+#    ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
+#    SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
+#    LEADING: Cut bases off the start of a read, if below a threshold quality
+#    TRAILING: Cut bases off the end of a read, if below a threshold quality
+#    CROP: Cut the read to a specified length
+#    HEADCROP: Cut the specified number of bases from the start of the read
+#    MINLEN: Drop the read if it is below a specified length
+#    TOPHRED33: Convert quality scores to Phred-33
+#    TOPHRED64: Convert quality scores to Phred-64
+#
+# java -jar <path to trimmomatic jar> SE [-threads <threads>] [-phred33 | -phred64] [-trimlog <logFile>] <input> <output> <step 1>
+
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $BIO/"$PROJECTNAME"
+   java -jar $TRIMMOMATIC/trimmomatic-0.38.jar SE -threads 1 -phred33 $BIO/"$PROJECTNAME"/notag"$FILENAME".fastq $BIO/"$PROJECTNAME"/trim"$FILENAME".fastq SLIDINGWINDOW:100:20 LEADING:3 TRAILING:3
+   
+   cd ..
+
+done < "$input"
+
+############# GMAP #############
+#
+# Built using:
+# http://manpages.ubuntu.com/manpages/bionic/man1/gmap.1.html
+#
+# Runs GMAP on the .fastq files from PrinSeq
+# Outputs a .sam file per dataset, divided by project
+# Necessary to build the genome using gmap_build
+
+counter=0
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $BIO/"$PROJECTNAME"
+
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| GMAP' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo '        ...**&**...'
+
+   $GMAP/gmap -d QSuber18 -t 5 -f samse -n 0 $BIO/"$PROJECTNAME"/'trim'$FILENAME'.fastq' > $BIO/"$PROJECTNAME"/$FILENAME.sam 2> $BIO/"$PROJECTNAME"/logs/'GMAPlog'$FILENAME'.txt'
+
+  cd ..
+done < "$input"
+
+############# SAMTOOLS #############
+#
+# Built using:
+# information in ESTsColdHeat_processing
+#
+# Runs samtools in the .sam files from gmap
+# samtools view 'opens' the .sam file
+# samtools sort sorts the .sam and outputs as a .bam
+
+counter=0
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $BIO/"$PROJECTNAME"
+
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
+   echo ' '
+   echo '       ...**&**...'
+   echo ' '
+
+   $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
+
+   cd ..
+
+done < "$input"
+
+############# FEATURECOUNTS #############
+#
+# Built using:
+# http://bioinf.wehi.edu.au/featureCounts/
+#
+
+counter=0
+input="$DATA/listprojectnamesIC.txt"
+while IFS= read -r PROJECTNAME
+do
+
+   cd $BIO/"$PROJECTNAME"
+
+   echo ' '
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
+
+   $FEATURECOUNTS/featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/"$PROJECTNAME"/*.bam 2>&1 | tee -a $BIO/"$PROJECTNAME"/logs/'featurecountslog'$PROJECTNAME'.txt'
+
+   cd ..
+done < "$input"
+
+############# STRINGTIE #############
+#
+# Built using:
+# https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+#
+# Will give the TPM and FPKM in an abundance file
+# Outputs a .gtf file
+#
+# Needs the indication of a reference genome as a .gtf file
+
+counter=0
+input="$DATA/listfilenamesIC.txt"
+while IFS= read -r FILENAME
+do
+   counter=$((counter+1))
+   PROJECTNAME=`echo $FILENAME | cut -c1-2`
+
+   cd $BIO/"$PROJECTNAME"
+
+   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
+   echo ' '
+   echo '          ...**&**...'
+
+   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$FILENAME'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$FILENAME'.gtf'
+
+   cd ..
+done < "$input"
+
+############# HOUSEKEEPING #############
+#
+# sorts output files into folders divided by tool
+#
+
+input="$DATA/listprojectnamesIC.txt"
+while IFS= read -r PROJECTNAME
+do
+   cd $BIO/"$PROJECTNAME"
+
+   mkdir -p notag
+   mkdir -p trimmomatic
+   mkdir -p gmap
+   mkdir -p bam
+   mkdir -p featurecounts
+   mkdir -p stringtie
+
+   mv notag* ./notag
+   mv *.bam ./bam
+   mv *.sam ./gmap
+   mv abundance* ./stringtie
+   mv *.gtf ./stringtie
+   mv counts* ./featurecounts
+   mv trim* ./trimmomatic
+   mv *ctab ./stringtie
+
+done < "$input"
