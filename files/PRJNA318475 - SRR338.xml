@@ -1,0 +1,38 @@
+<BioSampleSet>
+<BioSample access="public" publication_date="2017-05-04T18:37:22.440" last_update="2017-05-04T18:37:22.440" submission_date="2016-04-14T10:23:06.870" id="4854206" accession="SAMN04854206">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN04854206</Id>
+      <Id db_label="Sample name">Phellem ; 15-20y trees</Id>
+      <Id db="SRA">SRS1396886</Id>
+   </Ids>
+   <Description>
+      <Title>Phellem tissue from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>Universitat de Girona</Name>
+      <Contacts>
+         <Contact email="pauboher@gmail.com">
+            <Name>
+               <First>Pau</First>
+               <Last>Boher</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="isolate" harmonized_name="isolate" display_name="isolate">not aplicable</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">15-20 year-old field-grown trees</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">Spain:La Bisbal</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">Phellem</Attribute>
+   </Attributes>
+   <Links/>
+   <Status status="live" when="2017-05-04T18:37:22.440"/>
+</BioSample>
+</BioSampleSet>

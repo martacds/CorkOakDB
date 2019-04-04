@@ -1,0 +1,171 @@
+<BioSampleSet>
+<BioSample access="public" publication_date="2015-03-11T07:36:20.677" last_update="2015-03-11T18:38:38.547" submission_date="2015-03-11T07:36:20.677" id="3398613" accession="SAMN03398613">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03398613</Id>
+      <Id db_label="Sample name">Root ; 16mo ; Infection [P. cinnamomi]</Id>
+      <Id db="SRA">SRS872382</Id>
+   </Ids>
+   <Description>
+      <Title>Plant sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Roots from 16-month-old plants infected with Phytophthora cinnamomi</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Algarve</Name>
+      <Contacts>
+         <Contact email="acravad@ualg.pt">
+            <Name>
+               <First>Alfredo</First>
+               <Last>Cravador</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="isolate" harmonized_name="isolate" display_name="isolate">Four plants grown from acorns</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">16 months</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">Portugal: Algarve, Alentejo. Spain: Andalusia</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">roots</Attribute>
+      <Attribute attribute_name="sample_type" harmonized_name="sample_type" display_name="sample type">Thin white roots infected with P. cinnamomi</Attribute>
+   </Attributes>
+   <Links>
+      <Link type="entrez" target="bioproject" label="PRJNA277884">277884</Link>
+   </Links>
+   <Status when="2015-03-11T07:36:20.677" status="live"/>
+</BioSample>
+<BioSample access="public" publication_date="2015-03-11T07:24:23.923" last_update="2015-03-11T18:24:16.673" submission_date="2015-03-11T07:24:23.923" id="3398611" accession="SAMN03398611">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03398611</Id>
+      <Id db_label="Sample name">Root ; 16mo ; Control</Id>
+      <Id db="SRA">SRS872381</Id>
+   </Ids>
+   <Description>
+      <Title>Plant sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Roots from 16-month-old plants non-infected with Phytophthora cinnamomi</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Algarve</Name>
+      <Contacts>
+         <Contact email="acravad@ualg.pt">
+            <Name>
+               <First>Alfredo</First>
+               <Last>Cravador</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="isolate" harmonized_name="isolate" display_name="isolate">Four plants grown from acorns</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">16 months</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">Portugal: Algarve, Alentejo. Spain: Andalusia</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">roots</Attribute>
+      <Attribute attribute_name="sample_type" harmonized_name="sample_type" display_name="sample type">Thin white roots</Attribute>
+   </Attributes>
+   <Links>
+      <Link type="entrez" target="bioproject" label="PRJNA277884">277884</Link>
+   </Links>
+   <Status when="2015-03-11T07:24:23.923" status="live"/>
+</BioSample>
+<BioSample access="public" publication_date="2015-03-11T06:40:34.543" last_update="2015-03-11T17:48:34.333" submission_date="2015-03-11T06:40:34.543" id="3398607" accession="SAMN03398607">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03398607</Id>
+      <Id db_label="Sample name">Roots ; Germinated acorns ; Infection  [P. cinnamomi]</Id>
+      <Id db="SRA">SRS872360</Id>
+   </Ids>
+   <Description>
+      <Title>Plant sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Roots from germinated acorns infected with Phytophthora cinnamomi zoospores</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Algarve</Name>
+      <Contacts>
+         <Contact email="acravad@ualg.pt">
+            <Name>
+               <First>Alfredo</First>
+               <Last>Cravador</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="isolate" harmonized_name="isolate" display_name="isolate">Acorns from Tapada da Ajuda and several locations in Algarve and Alentejo.</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">germinated acorns</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">Portugal:Lisboa, Algarve, Alentejo</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">roots</Attribute>
+      <Attribute attribute_name="height_or_length" harmonized_name="height_or_length" display_name="height or length">8 cm length</Attribute>
+           <Attribute attribute_name="sample_type" harmonized_name="sample_type" display_name="sample type">tissue sample infected with Phytophthora cinnamom</Attribute>
+        </Attributes>
+        <Links>
+           <Link type="entrez" target="bioproject" label="PRJNA277884">277884</Link>
+        </Links>
+        <Status when="2015-03-11T06:40:34.543" status="live"/>
+     </BioSample>
+     <BioSample access="public" publication_date="2015-03-10T18:58:34.310" last_update="2015-03-11T15:15:25.393" submission_date="2015-03-10T18:58:34.310" id="3397812" accession="SAMN03397812">
+        <Ids>
+           <Id db="BioSample" is_primary="1">SAMN03397812</Id>
+           <Id db_label="Sample name">Roots ; Germinated acorns ; Control</Id>
+           <Id db="SRA">SRS872225</Id>
+        </Ids>
+        <Description>
+           <Title>Roots from Quercus suber</Title>
+           <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+             <OrganismName>Quercus suber</OrganismName>
+          </Organism>
+          <Comment>
+             <Paragraph>Roots non-infected with P. cinnamomi (NI) from germinated acorns</Paragraph>
+          </Comment>
+       </Description>
+       <Owner>
+          <Name>Universidade do Algarve</Name>
+          <Contacts>
+             <Contact email="acravad@ualg.pt">
+                <Name>
+                   <First>Alfredo</First>
+                   <Last>Cravador</Last>
+                </Name>
+             </Contact>
+          </Contacts>
+       </Owner>
+       <Models>
+          <Model>Plant</Model>
+       </Models>
+       <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+       <Attributes>
+          <Attribute attribute_name="isolate" harmonized_name="isolate" display_name="isolate">Acorns from Tapada da Ajuda and several locations in Algarve and Alentejo.</Attribute>
+          <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">germinated acorns</Attribute>
+          <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">Portugal:Lisboa, Algarve, Alentejo</Attribute>
+          <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">root</Attribute>
+          <Attribute attribute_name="height_or_length" harmonized_name="height_or_length" display_name="height or length">8 cm length</Attribute>
+       </Attributes>
+       <Links>
+          <Link type="entrez" target="bioproject" label="PRJNA277884">277884</Link>
+       </Links>
+       <Status when="2015-03-10T18:58:34.310" status="live"/>
+    </BioSample>
+</BioSampleSet>

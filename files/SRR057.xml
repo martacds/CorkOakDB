@@ -1,0 +1,60 @@
+<BioSampleSet>
+<BioSample submission_date="2011-04-15T11:15:54.423" last_update="2013-06-12T08:57:37.730" publication_date="2011-03-28T18:10:46.060" access="public" id="14892" accession="SAMN00014892">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN00014892</Id>
+      <Id db="Instituto de Investigação Cientifica Tropical" db_label="Sample name">Phellogen [good quality cork]</Id>
+      <Id db="SRA">SRS083080</Id>
+   </Ids>
+   <Description>
+      <Title>cork1</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber"/>
+   </Description>
+   <Owner>
+      <Name abbreviation="">Instituto de Investigação Cientifica Tropical</Name>
+      <Contacts>
+         <Contact email="jorgep@itqb.unl.pt" phone="+351214489461" lab="Centro das Florestas e dos Produtos Tropicais">
+            <Name>
+               <First>Jorge</First>
+               <Last>Paiva</Last>
+               <Middle>A. P.</Middle>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes/>
+   <Status status="live" when="2012-03-13T16:41:00.233"/>
+</BioSample>
+<BioSample submission_date="2011-04-15T11:16:17.840" last_update="2013-06-12T08:56:40.217" publication_date="2011-03-28T18:10:46.043" access="public" id="14893" accession="SAMN00014893">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN00014893</Id>
+      <Id db="Instituto de Investigação Cientifica Tropical" db_label="Sample name">Phellogen [bad quality cork]</Id>
+      <Id db="SRA">SRS083081</Id>
+   </Ids>
+   <Description>
+      <Title>cork2M</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber"/>
+   </Description>
+   <Owner>
+      <Name abbreviation="">Instituto de Investigação Cientifica Tropical</Name>
+      <Contacts>
+         <Contact email="jorgep@itqb.unl.pt" phone="+351214489461" lab="Centro das Florestas e dos Produtos Tropicais">
+            <Name>
+               <First>Jorge</First>
+               <Last>Paiva</Last>
+               <Middle>A. P.</Middle>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes/>
+   <Status status="live" when="2012-03-13T16:41:00.233"/>
+</BioSample>
+</BioSampleSet>

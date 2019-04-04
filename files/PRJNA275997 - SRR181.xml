@@ -1,0 +1,122 @@
+<BioSampleSet>
+<BioSample access="public" publication_date="2015-06-30T00:45:10.153" last_update="2015-06-30T00:45:10.153" submission_date="2015-02-20T15:31:33.090" id="3360498" accession="SAMN03360498">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03360498</Id>
+      <Id db_label="Sample name">Root ; 2mo ; Severe Drought</Id>
+      <Id db="SRA">SRS851883</Id>
+   </Ids>
+   <Description>
+      <Title>root sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Root transcriptome under severe drought conditions</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Minho</Name>
+      <Contacts>
+         <Contact email="xandinho2468@gmail.com">
+            <Name>
+               <First>Alexandre</First>
+               <Last>Magalhaes</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="cultivar" harmonized_name="cultivar" display_name="cultivar">ISA</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">2 months</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">not applicable</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">root</Attribute>
+      <Attribute attribute_name="treatment" harmonized_name="treatment" display_name="treatment">severe drought conditions</Attribute>
+   </Attributes>
+   <Links/>
+   <Status when="2015-06-30T00:45:10.153" status="live"/>
+</BioSample>
+<BioSample access="public" publication_date="2015-07-01T06:53:34.590" last_update="2015-07-01T06:53:34.590" submission_date="2015-02-20T15:28:18.307" id="3360497" accession="SAMN03360497">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03360497</Id>
+      <Id db_label="Sample name">Root ; 2mo ; Medium Drought</Id>
+      <Id db="SRA">SRS851887</Id>
+   </Ids>
+   <Description>
+      <Title>Root sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Root transcriptome under medium drought conditions</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Minho</Name>
+      <Contacts>
+         <Contact email="xandinho2468@gmail.com">
+            <Name>
+               <First>Alexandre</First>
+               <Last>Magalhaes</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="cultivar" harmonized_name="cultivar" display_name="cultivar">ISA</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">2 months</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">not applicable</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">root</Attribute>
+      <Attribute attribute_name="treatment" harmonized_name="treatment" display_name="treatment">Medium drought</Attribute>
+   </Attributes>
+   <Links/>
+   <Status when="2015-07-01T06:53:34.590" status="live"/>
+</BioSample>
+<BioSample access="public" publication_date="2015-07-01T06:53:34.483" last_update="2015-07-01T06:53:34.483" submission_date="2015-02-20T15:24:48.093" id="3360444" accession="SAMN03360444">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMN03360444</Id>
+      <Id db_label="Sample name">Root ; 2mo ; Well Watered</Id>
+      <Id db="SRA">SRS851885</Id>
+   </Ids>
+   <Description>
+      <Title>Root sample from Quercus suber</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+      <Comment>
+         <Paragraph>Root transcriptome under well watered conditions</Paragraph>
+      </Comment>
+   </Description>
+   <Owner>
+      <Name>Universidade do Minho</Name>
+      <Contacts>
+         <Contact email="xandinho2468@gmail.com">
+            <Name>
+               <First>Alexandre</First>
+               <Last>Magalhaes</Last>
+            </Name>
+         </Contact>
+      </Contacts>
+   </Owner>
+   <Models>
+      <Model>Plant</Model>
+   </Models>
+   <Package display_name="Plant; version 1.0">Plant.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="cultivar" harmonized_name="cultivar" display_name="cultivar">ISA</Attribute>
+      <Attribute attribute_name="age" harmonized_name="age" display_name="age">2 months</Attribute>
+      <Attribute attribute_name="geo_loc_name" harmonized_name="geo_loc_name" display_name="geographic location">not applicable</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">root</Attribute>
+      <Attribute attribute_name="treatment" harmonized_name="treatment" display_name="treatment">well Watered</Attribute>
+   </Attributes>
+   <Links/>
+   <Status when="2015-07-01T06:53:34.483" status="live"/>
+</BioSample>
+</BioSampleSet>

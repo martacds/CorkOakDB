@@ -1,0 +1,254 @@
+<BioSampleSet>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:08.703" submission_date="2014-05-07T08:33:42.793" id="2763496" accession="SAMEA2482148">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482148</Id>
+      <Id db="SRA">ERS445606</Id>
+   </Ids>
+   <Description>
+      <Title>EM</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">EM</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">Pool of embryos extracted from cork oak acorns in developmental stages S1 to S8</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445606</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445606</Attribute>
+      <Attribute attribute_name="Title">EM</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S1 to S8</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">embryos</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.217"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:08.937" submission_date="2014-05-07T08:33:42.730" id="2763495" accession="SAMEA2482147">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482147</Id>
+      <Id db="SRA">ERS445605</Id>
+   </Ids>
+   <Description>
+      <Title>FR</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">FR</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">Pool of cork oak acorns from developmental stage S1 to S8</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445605</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445605</Attribute>
+      <Attribute attribute_name="Title">FR</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S1 to S8</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.187"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:08.500" submission_date="2014-05-07T08:33:42.663" id="2763494" accession="SAMEA2482146">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482146</Id>
+      <Id db="SRA">ERS445604</Id>
+   </Ids>
+   <Description>
+      <Title>S8</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">S8</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">cork oak acorns at developmental stage S8</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445604</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445604</Attribute>
+      <Attribute attribute_name="Title">S8</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S8</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.160"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:08.233" submission_date="2014-05-07T08:33:42.613" id="2763493" accession="SAMEA2482145">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482145</Id>
+      <Id db="SRA">ERS445603</Id>
+   </Ids>
+   <Description>
+      <Title>S5</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">S5</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">cork oak acorns at developmental stage S5</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445603</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445603</Attribute>
+      <Attribute attribute_name="Title">S5</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S5</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.130"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:08.013" submission_date="2014-05-07T08:33:42.543" id="2763492" accession="SAMEA2482144">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482144</Id>
+      <Id db="SRA">ERS445602</Id>
+   </Ids>
+   <Description>
+      <Title>S3S4</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">S3S4</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">cork oak acorns at developmental stages S3 and S4</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445602</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445602</Attribute>
+      <Attribute attribute_name="Title">S3S4</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S3 and S4</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.103"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:07.593" submission_date="2014-05-07T08:33:42.490" id="2763491" accession="SAMEA2482143">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482143</Id>
+      <Id db="SRA">ERS445601</Id>
+   </Ids>
+   <Description>
+      <Title>S2</Title>
+      <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+         <OrganismName>Quercus suber</OrganismName>
+      </Organism>
+   </Description>
+   <Owner>
+      <Name>EBI</Name>
+   </Owner>
+   <Models>
+      <Model>Generic</Model>
+   </Models>
+   <Package display_name="Generic">Generic.1.0</Package>
+   <Attributes>
+      <Attribute attribute_name="Alias">S2</Attribute>
+      <Attribute attribute_name="Description" harmonized_name="description" display_name="description">cork oak acorns at developmental stage S2</Attribute>
+      <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+      <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+      <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+      <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+      <Attribute attribute_name="INSDC status">public</Attribute>
+      <Attribute attribute_name="SRA accession">ERS445601</Attribute>
+      <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445601</Attribute>
+      <Attribute attribute_name="Title">S2</Attribute>
+      <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+      <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S2</Attribute>
+      <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+      <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+   </Attributes>
+   <Status status="live" when="2015-08-07T22:56:17.080"/>
+</BioSample>
+<BioSample access="public" publication_date="2014-04-30T00:00:00.000" last_update="2019-01-15T11:40:07.780" submission_date="2014-05-07T08:33:42.407" id="2763490" accession="SAMEA2482142">
+   <Ids>
+      <Id db="BioSample" is_primary="1">SAMEA2482142</Id>
+      <Id db="SRA">ERS445600</Id>
+</Ids>
+<Description>
+   <Title>S1</Title>
+   <Organism taxonomy_id="58331" taxonomy_name="Quercus suber">
+      <OrganismName>Quercus suber</OrganismName>
+   </Organism>
+</Description>
+<Owner>
+   <Name>EBI</Name>
+</Owner>
+<Models>
+   <Model>Generic</Model>
+</Models>
+<Package display_name="Generic">Generic.1.0</Package>
+<Attributes>
+   <Attribute attribute_name="Alias">S1</Attribute>
+   <Attribute attribute_name="Description" harmonized_name="description" display_name="description">cork oak acorns at developmental stage S1</Attribute>
+   <Attribute attribute_name="ENA checklist">ERC000011</Attribute>
+   <Attribute attribute_name="INSDC center name">IBET/ITQB</Attribute>
+   <Attribute attribute_name="INSDC first public">2014-04-30T17:00:37Z</Attribute>
+   <Attribute attribute_name="INSDC last update">2014-04-26T11:01:54Z</Attribute>
+   <Attribute attribute_name="INSDC status">public</Attribute>
+   <Attribute attribute_name="SRA accession">ERS445600</Attribute>
+   <Attribute attribute_name="Sample Name" harmonized_name="sample_name" display_name="sample name">ERS445600</Attribute>
+   <Attribute attribute_name="Title">S1</Attribute>
+   <Attribute attribute_name="collection_date" harmonized_name="collection_date" display_name="collection date">June - November 2009</Attribute>
+   <Attribute attribute_name="dev_stage" harmonized_name="dev_stage" display_name="development stage">S1</Attribute>
+   <Attribute attribute_name="geographic location (country and/or sea)" harmonized_name="geo_loc_name" display_name="geographic location">Portugal</Attribute>
+   <Attribute attribute_name="tissue_type" harmonized_name="tissue" display_name="tissue">fruit</Attribute>
+</Attributes>
+<Status status="live" when="2015-08-07T22:56:17.053"/>
+</BioSample>
+</BioSampleSet>
