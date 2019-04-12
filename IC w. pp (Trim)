@@ -132,7 +132,7 @@ do
 
    cd $BIO/"$PROJECTNAME"
    java -jar $TRIMMOMATIC/trimmomatic-0.38.jar SE -threads 1 -phred33 $BIO/"$PROJECTNAME"/notag"$FILENAME".fastq $BIO/"$PROJECTNAME"/trim"$FILENAME".fastq SLIDINGWINDOW:100:20 LEADING:3 TRAILING:3
-   
+
    cd ..
 
 done < "$input"
