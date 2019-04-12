@@ -4,15 +4,13 @@
 #
 ### FOLDERS ###
 HOME=/data/martasilva/
-DATA=$HOME/TRIMdata
-FASTQFILES=$DATA/TRIMfastq #folder for .fastq files
+DATA=$HOME/454data
+FASTQFILES=$DATA/454fastq #folder for .fastq files
 BIO=$DATA/BioProjects #folder for output files, divided by BioProject
 ### TOOLS ###
 TOOLS=/home/martasilva/tools
 FASTQDUMP=$TOOLS/SRAtoolkit-2.9.4/bin
 TAGCLEANER=$TOOLS/TagCleaner-0.16
-SICKLE=$TOOLS/sickle-1.33
-PRINSEQ=$TOOLS/PrinSeq-0.20.4
 GMAP=$TOOLS/gmap-2018-07-04/bin
 SAMTOOLS=/usr/bin
 FEATURECOUNTS=$TOOLS/SubRead-v1.6.3/bin
@@ -58,10 +56,10 @@ done
 # creates the BioProjects and logs folders
 #
    cd $FASTQFILES
-   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesTRIM.txt
-   ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnamesTRIM.txt
+   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenames454.txt
+   ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnames454.txt
 
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
@@ -92,7 +90,7 @@ done < "$input"
 #
 
 counter=0
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
@@ -156,15 +154,15 @@ done < "$input"
 #
 # java -jar <path to trimmomatic jar> SE [-threads <threads>] [-phred33 | -phred64] [-trimlog <logFile>] <input> <output> <step 1>
 
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
 
    cd $BIO/"$PROJECTNAME"
-   java -jar $TRIMMOMATIC/trimmomatic-0.38.jar SE -threads 1 -phred33 $BIO/"$PROJECTNAME"/notag"$FILENAME".fastq $BIO/"$PROJECTNAME"/trim"$FILENAME".fastq SLIDINGWINDOW:100:20 LEADING:3 TRAILING:3 | tee -a $BIO/"$PROJECTNAME"/logs/logpercentages$FILENAME.txt
-   
+   java -jar $TRIMMOMATIC/trimmomatic-0.38.jar SE -threads 1 -phred33 $BIO/"$PROJECTNAME"/notag"$FILENAME".fastq $BIO/"$PROJECTNAME"/trim"$FILENAME".fastq SLIDINGWINDOW:100:20 LEADING:3 TRAILING:3
+
    cd ..
 
 done < "$input"
@@ -179,7 +177,7 @@ done < "$input"
 # Necessary to build the genome using gmap_build
 
 counter=0
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
@@ -207,7 +205,7 @@ done < "$input"
 # samtools sort sorts the .sam and outputs as a .bam
 
 counter=0
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
@@ -233,7 +231,7 @@ done < "$input"
 #
 
 counter=0
-input="$DATA/listprojectnamesTRIM.txt"
+input="$DATA/listprojectnames454.txt"
 while IFS= read -r PROJECTNAME
 do
 
@@ -258,7 +256,7 @@ done < "$input"
 # Needs the indication of a reference genome as a .gtf file
 
 counter=0
-input="$DATA/listfilenamesTRIM.txt"
+input="$DATA/listfilenames454.txt"
 while IFS= read -r FILENAME
 do
    counter=$((counter+1))
@@ -280,7 +278,7 @@ done < "$input"
 # sorts output files into folders divided by tool
 #
 
-input="$DATA/listprojectnamesTRIM.txt"
+input="$DATA/listprojectnames454.txt"
 while IFS= read -r PROJECTNAME
 do
    cd $BIO/"$PROJECTNAME"
