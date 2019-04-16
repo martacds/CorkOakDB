@@ -240,7 +240,7 @@ do
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME 'FEATURECOUNTS ~~~~~~~~~~~~'
 
-   $FEATURECOUNTS/featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_name -o 'counts'$PROJECTNAME'.txt' $BIO/"$PROJECTNAME"/*.bam 2>&1 | tee -a $BIO/"$PROJECTNAME"/logs/'featurecountslog'$PROJECTNAME'.txt'
+   $FEATURECOUNTS/featureCounts -a $GTF/CorkOak1.0_genomic.gtf -g gene_id -o 'counts'$PROJECTNAME'.txt' $BIO/"$PROJECTNAME"/*.bam 2>&1 | tee -a $BIO/"$PROJECTNAME"/logs/'featurecountslog'$PROJECTNAME'.txt'
 
    cd ..
 done < "$input"
