@@ -17,10 +17,10 @@
 ############# CONFIGURATION #############
 #
 ### FOLDERS ###
-HOME=/home/martasilva
-DATA=$HOME/ILLdata
+HOME=/data/martasilva
+DATA=$HOME/IlluminaData
 BIO=$DATA/BioProjects #folder for output files, divided by BioProject
-FASTQFILES=$DATA/ILLfastq #folder for .fastq files
+FASTQFILES=$DATA/fastqfiles #folder for .fastq files
 ### TOOLS ###
 TOOLS=/home/martasilva/tools
 FASTQDUMP=$TOOLS/SRAtoolkit-2.9.4/bin
@@ -47,30 +47,34 @@ GENOME=CorkOak1.0_genomic.gtf #name of the genome file
 ## e.g. ./dwnfastq.sh listSRAnumbers.txt
 ##
 
-counter=0
-for SRA_ID in `cat $1`
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
-
-   echo ' '
-   echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
-   echo ' '
-   echo '             ...**&**...'
-   echo ' '
-
-   $FASTQDUMP/fastq-dump -I --split-files -O $FASTQFILES $SRA_ID
-
-done
+#counter=0
+#for SRA_ID in `cat $1`
+#do
+#   counter=$((counter+1))
+#   PROJECTNAME=`echo $SRA_ID | cut -c1-6`
+#
+#   echo ' '
+#   echo '~~~~~~~~~~~~' $counter ' FASTQ-DUMP ' $SRA_ID '~~~~~~~~~~~~'
+#   echo ' '
+#   echo '             ...**&**...'
+#   echo ' '
+#
+#   $FASTQDUMP/fastq-dump -I --split-files -O $FASTQFILES $SRA_ID
+#
+#done
 
 ############# AND I SAID LET THERE BE LISTS AND FOLDERS #############
 #
 # creates lists for the filenames and projectnames
 # creates the BioProjects and logs folders
 #
-   cd $FASTQFILES
+
+for direc in $FASTQFILES/*
+do
+   cd $direc
    ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesILL.txt
    ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnamesILL.txt
+done
 
 input="$DATA/listfilenamesILL.txt"
 while IFS= read -r FILENAME
@@ -106,6 +110,7 @@ while IFS= read -r FILENAME
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
 
    echo ' '
    echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
@@ -114,8 +119,10 @@ do
    echo ' '
 
    cd $FASTQFILES
-   $HISAT/hisat2 -t --summary-file $BIO/"$PROJECTNAME"/logs/'loghisat2'$FILENAME'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 *'1.fastq' -2 *'2.fastq' -S $BIO/"$PROJECTNAME"/$FILENAME'.sam'
+   cd $SHORTFILE
+   $HISAT/hisat2 -t --summary-file $BIO/"$PROJECTNAME"/logs/'loghisat2'$SHORTFILE'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 $SHORTFILE'_1.fastq' -2 $SHORTFILE'_2.fastq' -S $BIO/"$PROJECTNAME"/$SHORTFILE'.sam'
 
+   cd ..
    cd ..
 done < "$input"
 
