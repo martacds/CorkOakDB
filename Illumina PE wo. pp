@@ -141,14 +141,15 @@ while IFS= read -r FILENAME
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
 
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $FILENAME '~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $SHORTFILE '~~~~~~~~~~~~'
    echo ' '
    echo '    ......**&**......'
    echo ' '
 
    cd $BIO/"$PROJECTNAME"
-   $SAMTOOLS/samtools view -bS $FILENAME.sam | $SAMTOOLS/samtools sort -o $FILENAME.bam
+   $SAMTOOLS/samtools view -bS $SHORTFILE.sam | $SAMTOOLS/samtools sort -o $SHORTFILE.bam
 
    cd ..
 
@@ -191,13 +192,14 @@ while IFS= read -r FILENAME
 do
    counter=$((counter+1))
    PROJECTNAME=`echo $FILENAME | cut -c1-6`
+   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
 
-   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $FILENAME '~~~~~~~~~~~~~'
+   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $SHORTFILE '~~~~~~~~~~~~~'
    echo ' '
    echo '      ......**&**......'
 
    cd $BIO/"$PROJECTNAME"
-   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$FILENAME'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$FILENAME -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$FILENAME'.gtf'
+   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$SHORTFILE'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$SHORTFILE -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$SHORTFILE'.gtf'
 
    cd ..
 done < "$input"
