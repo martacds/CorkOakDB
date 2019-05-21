@@ -29,7 +29,7 @@ SAMTOOLS=/usr/bin
 FEATURECOUNTS=$TOOLS/SubRead-v1.6.3/bin
 STRINGTIE=$TOOLS/StringTie-v1.3.5
 ### GENOME ###
-GTF=/home/martasilva #folder for genome file
+GTF=/data/martasilva #folder for genome file
 GENOME=CorkOak1.0_genomic.gtf #name of the genome file
 
 ############## FASTQ-DUMP #############
@@ -69,91 +69,91 @@ GENOME=CorkOak1.0_genomic.gtf #name of the genome file
 # creates the BioProjects and logs folders
 #
 
-for direc in $FASTQFILES/*
-do
-   cd $direc
-   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesILL.txt
-   ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnamesILL.txt
-done
-
-input="$DATA/listfilenamesILL.txt"
-while IFS= read -r FILENAME
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-
-   cd $DATA
-   mkdir -p BioProjects
-   cd BioProjects
-   mkdir -p $PROJECTNAME
-   cd $PROJECTNAME
-   mkdir -p logs
-
-done < "$input"
-
-############ HISAT2 #############
+#for direc in $FASTQFILES/*
+#do
+#   cd $direc
+#   ls | grep fastq | cut --delimiter=. -f1 >> $DATA/listfilenamesILL.txt
+#   ls | grep fastq | cut -c1-6 | sort | uniq >> $DATA/listprojectnamesILL.txt
+#done
 #
-# Built using:
-# http://ccb.jhu.edu/software/hisat2/manual.shtml#running-hisat2
+#input="$DATA/listfilenamesILL.txt"
+#while IFS= read -r FILENAME
+#do
+#   counter=$((counter+1))
+#   PROJECTNAME=`echo $FILENAME | cut -c1-6`
 #
-# Runs HISAT2 on the .fastq files.
-# Aligns to a genome. Outputs a .sam file.
+#   cd $DATA
+#   mkdir -p BioProjects
+#   cd BioProjects
+#   mkdir -p $PROJECTNAME
+#   cd $PROJECTNAME
+#   mkdir -p logs
 #
-# Necessary to build an index using hisat2-build
+#done < "$input"
 #
-# Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
-# This is insanely ugly and an alternative is essential.
-
-counter=0
-input="$DATA/listfilenamesILL.txt"
-while IFS= read -r FILENAME
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
-
-   echo ' '
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $FILENAME 'HISAT2 ~~~~~~~~~~~~'
-   echo ' '
-   echo '            ......**&**......'
-   echo ' '
-
-   cd $FASTQFILES
-   cd $SHORTFILE
-   $HISAT/hisat2 -t --summary-file $BIO/"$PROJECTNAME"/logs/'loghisat2'$SHORTFILE'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 $SHORTFILE'_1.fastq' -2 $SHORTFILE'_2.fastq' -S $BIO/"$PROJECTNAME"/$SHORTFILE'.sam'
-
-   cd ..
-   cd ..
-done < "$input"
-
-############# SAMTOOLS #############
+############# HISAT2 #############
+##
+## Built using:
+## http://ccb.jhu.edu/software/hisat2/manual.shtml#running-hisat2
+##
+## Runs HISAT2 on the .fastq files.
+## Aligns to a genome. Outputs a .sam file.
+##
+## Necessary to build an index using hisat2-build
+##
+## Beginning of the illumina datasets' SRAs is specified so it doesnt run on the 454 datasets.
+## This is insanely ugly and an alternative is essential.
 #
-# Built using:
-# information in ESTsColdHeat_processing
+#counter=0
+#input="$DATA/listfilenamesILL.txt"
+#while IFS= read -r FILENAME
+#do
+#   counter=$((counter+1))
+#   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+#   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
 #
-# Runs samtools in the .sam files from gmap
-# samtools view 'opens' the .sam file
-# samtools sort sorts the .sam and outputs as a .bam
-
-counter=0
-input="$DATA/listfilenamesILL.txt"
-while IFS= read -r FILENAME
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
-
-   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $SHORTFILE '~~~~~~~~~~~~'
-   echo ' '
-   echo '    ......**&**......'
-   echo ' '
-
-   cd $BIO/"$PROJECTNAME"
-   $SAMTOOLS/samtools view -bS $SHORTFILE.sam | $SAMTOOLS/samtools sort -o $SHORTFILE.bam
-
-   cd ..
-
-done < "$input"
+#   echo ' '
+#   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '||' $SHORTFILE 'HISAT2 ~~~~~~~~~~~~'
+#   echo ' '
+#   echo '            ......**&**......'
+#   echo ' '
+#
+#   cd $FASTQFILES
+#   cd $SHORTFILE
+#   $HISAT/hisat2 -t --summary-file $BIO/"$PROJECTNAME"/logs/'loghisat2'$SHORTFILE'.txt' -x $HISAT/qsuber2018/qsuber2018 -1 $SHORTFILE'_1.fastq' -2 $SHORTFILE'_2.fastq' -S $BIO/"$PROJECTNAME"/$SHORTFILE'.sam'
+#
+#   cd ..
+#   cd ..
+#done < "$input"
+#
+############## SAMTOOLS #############
+##
+## Built using:
+## information in ESTsColdHeat_processing
+##
+## Runs samtools in the .sam files from gmap
+## samtools view 'opens' the .sam file
+## samtools sort sorts the .sam and outputs as a .bam
+#
+#counter=0
+#input="$DATA/listfilenamesILL.txt"
+#while IFS= read -r FILENAME
+#do
+#   counter=$((counter+1))
+#   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+#   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
+#
+#   echo '~~~~~~~~~~~~' $counter $PROJECTNAME '|| SAMTOOLS' $SHORTFILE '~~~~~~~~~~~~'
+#   echo ' '
+#   echo '    ......**&**......'
+#   echo ' '
+#
+#   cd $BIO/"$PROJECTNAME"
+#   $SAMTOOLS/samtools view -bS $SHORTFILE.sam | $SAMTOOLS/samtools sort -o $SHORTFILE.bam
+#
+#   cd ..
+#
+#done < "$input"
 
 ############# FEATURECOUNTS #############
 #
@@ -186,45 +186,45 @@ done < "$input"
 #
 # Needs the indication of a reference genome as a .gtf file
 
-counter=0
-input="$DATA/listfilenamesILL.txt"
-while IFS= read -r FILENAME
-do
-   counter=$((counter+1))
-   PROJECTNAME=`echo $FILENAME | cut -c1-6`
-   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
-
-   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $SHORTFILE '~~~~~~~~~~~~~'
-   echo ' '
-   echo '      ......**&**......'
-
-   cd $BIO/"$PROJECTNAME"
-   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$SHORTFILE'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$SHORTFILE -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$SHORTFILE'.gtf'
-
-   cd ..
-done < "$input"
+#counter=0
+#input="$DATA/listfilenamesILL.txt"
+#while IFS= read -r FILENAME
+#do
+#   counter=$((counter+1))
+#   PROJECTNAME=`echo $FILENAME | cut -c1-6`
+#   SHORTFILE=`echo $FILENAME | cut --delimiter=_ -f1`
+#
+#   echo '~~~~~~~~~~~~~' $counter $PROJECTNAME '|| STRINGTIE' $SHORTFILE '~~~~~~~~~~~~~'
+#   echo ' '
+#   echo '      ......**&**......'
+#
+#   cd $BIO/"$PROJECTNAME"
+#   $STRINGTIE/stringtie $BIO/"$PROJECTNAME"/$SHORTFILE'.bam' -e -B -A $BIO/"$PROJECTNAME"/abundance$SHORTFILE -G $GTF/CorkOak1.0_genomic.gtf -o $BIO/"$PROJECTNAME"/$SHORTFILE'.gtf'
+#
+#   cd ..
+#done < "$input"
 
 ############# HOUSEKEEPING #############
 #
 # sorts output files into folders divided by tool
 #
 
-input="$DATA/listprojectnamesILL.txt"
-while IFS= read -r PROJECTNAME
-do
-
-   cd $BIO/"$PROJECTNAME"
-
-   mkdir -p hisat2
-   mkdir -p bam
-   mkdir -p featurecounts
-   mkdir -p stringtie
-
-
-   mv *.bam ./bam
-   mv *.sam ./hisat2
-   mv abundance* ./stringtie
-   mv *.gtf ./stringtie
-   mv counts* ./featurecounts
-
-done < "$input"
+#input="$DATA/listprojectnamesILL.txt"
+#while IFS= read -r PROJECTNAME
+#do
+#
+#   cd $BIO/"$PROJECTNAME"
+#
+#   mkdir -p hisat2
+#   mkdir -p bam
+#   mkdir -p featurecounts
+#   mkdir -p stringtie
+#
+#
+#   mv *.bam ./bam
+#   mv *.sam ./hisat2
+#   mv abundance* ./stringtie
+#   mv *.gtf ./stringtie
+#   mv counts* ./featurecounts
+#
+#done < "$input"
