@@ -1,6 +1,5 @@
 file = open("rnaSEQ_QSgeneFNA.txt", "r")
 file_out = open("uniqXM.txt", "w")
-file_out.write('query' + '\t' + 'hit' + '\t' + 'evalue' + '\t' + 'bit_score' + '\n')
 
 uniqueID = ''
 for line in file:
@@ -21,10 +20,8 @@ file.close()
 file_out.close()
 
 file = open("uniqXM.txt", "r")
-file_out = open("twinXM.txt", "w")
-file_out.write('query' + '\t' + 'hit' + '\t' + 'evalue' + '\t' + 'bit_score' + '\n')
+file_out = open("idTable.txt", "w")
 
-id_list = []
 twinID = ''
 eOLD = ''
 for line in file:
@@ -37,13 +34,13 @@ for line in file:
     bit_score = line[len(line) - 1]
     if twinID == twinGene:
         if eOLD == eNEW:
-            file_out.write(gene + '\t' + hit + '\t' + evalue + '\t' + bit_score + '\n')
+            file_out.write(hit + '\t' + gene + '\n')
             eOLD = evalue
             twinID = gene
         else:
             pass
     elif twinID != twinGene:
-        file_out.write(gene + '\t' + hit + '\t' + evalue + '\t' + bit_score + '\n')
+        file_out.write(hit + '\t' + gene + '\n')
         eOLD = evalue
         twinID = gene
 
