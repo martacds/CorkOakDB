@@ -2,7 +2,6 @@ file = open("rnaSEQ_QSgeneFNA.txt", "r")
 file_out = open("uniqXM.txt", "w")
 file_out.write('query' + '\t' + 'hit' + '\t' + 'evalue' + '\t' + 'bit_score' + '\n')
 
-id_list = []
 uniqueID = ''
 for line in file:
     line = line.strip().split()
