@@ -1,3 +1,23 @@
+file = open("idTable.txt", "r")
+file_out = open("compList.txt","w")
+
+hit_same = ''
+for line in file:
+    line = line.strip().split()
+    gene = line[1]
+    hit = line[0]
+    queryID = hit
+    if hit_same != queryID:
+        file_out.write("\n" + queryID + "\t" + gene)
+        hit_same = queryID
+    elif hit_same == queryID:
+        file_out.write("," + gene)
+        hit_same = queryID
+        
+file.close()
+file_out.close()
+
+
 before = open("CorkOak_genomic_edited2020_v2.gff", "r")
 file = open("compList.txt", "r")
 file_out = open("CorkOak_genomic_edited2020_v3.gff", "w")
