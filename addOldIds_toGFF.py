@@ -50,7 +50,7 @@ for line in before:
             # print(data_dict[transcID])
             if transcID in data_dict:
                 desLine = line_l[0] + "\t" + line_l[1] + "\t" + line_l[2] + "\t" + line_l[3] + "\t" + line_l[4] + "\t" + \
-                          line_l[5] + "\t" + line_l[6] + "\t" + line_l[7] + "\t" + line_l[8] + ";" + "oldID=" + \
+                          line_l[5] + "\t" + line_l[6] + "\t" + line_l[7] + "\t" + line_l[8] + ";" + "EST_IDs=" + \
                           data_dict[transcID] + "\n"
                 file_out.write(desLine)
             else:
