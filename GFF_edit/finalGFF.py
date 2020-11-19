@@ -4,6 +4,7 @@
 ### adds descriptions to polypeptides from previous literature
 ### adds matching EST IDs from old portal to transcripts
 ### adds genes as parents to polypeptide
+### adds products to gene lines
 
 # This will re-build the last column of the file
 # according to the dictionaries created in those sections
