@@ -27,7 +27,7 @@ descrip = open("polypeptides_with_description.txt",
 # matching file between the mRNA IDs and the gene IDs from the previous CorkOakDB portal (2 columns: ID, description)
 est = open("compList_hit.txt",
            "r")
-file_out = open("CorkOakDB_genomic_Nov2020.gff", "w")
+file_out = open("upload_CorkOakDB_genomic_Nov2020.gff", "w")
 
 
 def getIDs():  # populates dictionary with key-value of transcript/mRNA ID-EST gene ID
@@ -122,6 +122,7 @@ for line in gff:
                 file_out.write(polyD_line) # prints lines w/ descriptions
                 
                 attrCDS["Name"] = "cds-" + attrCDS["Name"]
+                attrCDS["ID"] = attrCDS["Name"]
                 file_out.write("\t".join(line_l[:8]) + "\t" + formColmn8(attrCDS) + "\n")  # prints CDS line
             else:
                 attrPolyp["ID"] = "polypeptide-" + cdsID
@@ -131,6 +132,7 @@ for line in gff:
                 file_out.write(poly_line) # prints lines w/o descriptions
                 
                 attrCDS["Name"] = "cds-" + attrCDS["Name"]
+                attrCDS["ID"] = attrCDS["Name"]
                 file_out.write("\t".join(line_l[:8]) + "\t" + formColmn8(attrCDS) + "\n")  # prints CDS line
 
         else:
