@@ -4,7 +4,6 @@
 ### adds descriptions to polypeptides from previous literature
 ### adds matching EST IDs from old portal to transcripts
 ### adds genes as parents to polypeptide
-### adds products to gene lines
 
 # This will re-build the last column of the file
 # according to the dictionaries created in those sections
@@ -109,23 +108,30 @@ for line in gff:
             getdescrip()
 
             attrCDS = dict(item.split("=") for item in line_l[8].split(";"))
-            attrCDS["Parent"] = attrCDS.get("Parent") + "," + geneID # adds gene ID as parent
+            attrPolyp = attrCDS
+            attrPolyp["Parent"] = attrPolyp.get("Parent") + "," + geneID # adds gene ID as parent
 
-            namePolyp = attrCDS["Name"]
-            file_out.write("\t".join(line_l[:8]) + "\t" + formColmn8(attrCDS) + "\n") # prints CDS line
+            namePolyp = attrPolyp["Name"]
+
 
             if namePolyp in descrip_dict:
-                attrCDS["ID"] = "polypeptide-" + cdsID
+                attrPolyp["ID"] = "polypeptide-" + cdsID
                 polyD_line = line_l[0] + "\t" + line_l[1] + "\t" + "polypeptide" + "\t" + line_l[3] + "\t" + line_l[
                     4] + "\t" + line_l[5] + "\t" + line_l[6] + "\t" + line_l[
-                                 7] + "\t" + formColmn8(attrCDS) + ";" + "Description=" + descrip_dict[namePolyp] + "\n"
+                                 7] + "\t" + formColmn8(attrPolyp) + ";" + "Description=" + descrip_dict[namePolyp] + "\n"
                 file_out.write(polyD_line) # prints lines w/ descriptions
+                
+                attrCDS["Name"] = "cds-" + attrCDS["Name"]
+                file_out.write("\t".join(line_l[:8]) + "\t" + formColmn8(attrCDS) + "\n")  # prints CDS line
             else:
-                attrCDS["ID"] = "polypeptide-" + cdsID
+                attrPolyp["ID"] = "polypeptide-" + cdsID
                 poly_line = line_l[0] + "\t" + line_l[1] + "\t" + "polypeptide" + "\t" + line_l[3] + "\t" + line_l[
                     4] + "\t" + line_l[5] + "\t" + line_l[6] + "\t" + line_l[
-                                7] + "\t" + formColmn8(attrCDS) + "\n"
+                                7] + "\t" + formColmn8(attrPolyp) + "\n"
                 file_out.write(poly_line) # prints lines w/o descriptions
+                
+                attrCDS["Name"] = "cds-" + attrCDS["Name"]
+                file_out.write("\t".join(line_l[:8]) + "\t" + formColmn8(attrCDS) + "\n")  # prints CDS line
 
         else:
             file_out.write(line)
