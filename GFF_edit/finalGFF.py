@@ -99,7 +99,7 @@ for line in gff:
             attrGene = dict(item.split("=") for item in line_l[8].split(";"))
             line_l[8] = line_l[8] + ";Product="
             lineGene = line_l
-            prevGene = line
+            prevGene = line.rstrip("\n")
 
         elif line_l[2] == "CDS":
             features = line_l[8]
