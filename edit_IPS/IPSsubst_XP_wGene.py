@@ -3,35 +3,35 @@
 ### a blank line is created at the beginning
 ### and it interferes w/ the rest of the script
 
-# gff = open("CorkOakDB_genomic_Nov2020.gff", "r")
-# file_match = open("genePolypeptide_match.txt", "w")
-# 
-# prevID = ""
-# for line in gff:
-#     if line[0] == "#":
-#         pass
-#     else:
-#         line_l = line.strip().split("\t")
-#         if line_l[2] == "gene":
-#             features = line_l[8]
-#             feature_l = features.strip('"').split(";")
-#             geneID = feature_l[0][3:] # gets gene ID
-#             file_match.write("\n" + geneID + "\t")
-#     # this creates a blank line at the beginning of the file that has to be removed for the rest to work
-# 
-#         elif line_l[2] == "polypeptide":
-#             features = line_l[8]
-#             feature_l = features.strip('"').split(";")
-#             polypID = feature_l[0][15:] # gets polypeptide ID
-#             if polypID == prevID:
-#                 pass # there are several lines w/ the same polypeptide (different coordinates)
-#             else:
-#                 prevID = polypID # saves ID for the if above
-#                 file_match.write(polypID)
-# 
-#         else:
-#             pass
-# file_match.close()
+gff = open("CorkOakDB_genomic_Nov2020.gff", "r")
+file_match = open("genePolypeptide_match.txt", "w")
+
+prevID = ""
+for line in gff:
+    if line[0] == "#":
+        pass
+    else:
+        line_l = line.strip().split("\t")
+        if line_l[2] == "gene":
+            features = line_l[8]
+            feature_l = features.strip('"').split(";")
+            geneID = feature_l[0][3:] # gets gene ID
+            #file_match.write("\n" + geneID + "\t")
+    # this creates a blank line at the beginning of the file that has to be removed for the rest to work
+
+        elif line_l[2] == "polypeptide":
+            features = line_l[8]
+            feature_l = features.strip('"').split(";")
+            polypID = feature_l[0][15:] # gets polypeptide ID
+            if polypID == prevID:
+                pass # there are several lines w/ the same polypeptide (different coordinates)
+            else:
+                prevID = polypID # saves ID for the if above
+                file_match.write(geneID + "\t" + polypID + "\n")
+
+        else:
+            pass
+file_match.close()
 
 
 ips = open("CorkOak1.0_protein.faa.xml", "r")
@@ -41,11 +41,10 @@ file_final = open("CorkOak1.0_gene.xml", "w")
 match = {} # creates empty dictionary for the match between gene and polypeptide
 def getMatch():
     for line in file_match2:
-        column = line.split("\t")
-        if column[1] != "": # some genes don't have polypeptides
-            gene = column[0]
-            polypeptide = column[1][:-1] # removes new line char
-            match[polypeptide] = gene # creates dictionary
+        column = line.strip().split("\t")
+        gene = column[0]
+        polypeptide = column[1]
+        match[polypeptide] = gene # creates dictionary
     return match
 
 
