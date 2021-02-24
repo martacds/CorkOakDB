@@ -1,7 +1,7 @@
 This repository includes everything that was used in [CorkOakDB](https://corkoakdb.org) to process data and implement changes.
 
 ### bioschemas
-Constructed from documentation and tools provided by [Bioschemas](https://bioschemas.org)
+Constructed from documentation and tools provided by [Bioschemas](https://bioschemas.org).
 Includes the section added to template.php and the .js file with the annotation. The resources annotated are Gene, Polypeptide, BioProject, BioSample and Organism.
 
 ### edit_GFF
