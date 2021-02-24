@@ -6,6 +6,12 @@ Includes the section added to template.php and the .js file with the annotation.
 
 ### edit_GFF
 Script to alter the original GFF file obtained from the article. Includes additional files with descriptions of polypeptides published prior to the draft genome and a file matching the current IDs of transcripts with the IDs of the first version of the portal.
+- changes mRNA, tRNA, rRNA, lnc_RNA, snRNA, snoRNA to Transcript and adds these terms as a Type to the last column
+- changes pseudogene to gene and adds this term as Type in the last column
+- adds Polypeptide line with the same content as CDS
+- adds descriptions to Polypeptides from curated file
+- adds gene IDs as parents to Polypeptides
+- adds IDs from previous version of the portal to Transcripts in a EST_IDs attribute
 
 ### edit_IPS
 An additional InterProScan file was created by substituting the polypeptide IDs for their respective gene IDs. Includes a file with this match.
