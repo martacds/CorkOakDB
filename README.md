@@ -15,12 +15,12 @@ Original script to get only the first and best hit from a BLAST file and edited 
 
 ### get_expression
 Pipeline that obtains the expression values of genes by BioSamples from a list of SRA numbers. Includes scripts for 454 (single-ended) and Illumina (paired-ended) datasets, with pre-processing and without, respectively. For the 454 datasets there are two configurations of tools for the pre-processing.
-- 454 SE w. pp: FASTQdump, TagCleaner, **Sickle, PrinSeq**, GMAP, SamTools, FeatureCounts, StringTie
-- 454 SE w. pp (Trim): FASTQdump, TagCleaner, **Trimmomatic**, GMAP, SamTools, FeatureCounts, StringTie
-- Illumina PE wo. pp: FASTQdump, HISAT2, SamTools, FeatureCounts, StringTie
+- **454 SE w. pp**: FASTQdump, TagCleaner, _Sickle, PrinSeq_, GMAP, SamTools, FeatureCounts, StringTie
+- **454 SE w. pp (Trim)**: FASTQdump, TagCleaner, _Trimmomatic_, GMAP, SamTools, FeatureCounts, StringTie
+- **Illumina PE wo. pp**: FASTQdump, HISAT2, SamTools, FeatureCounts, StringTie
 
 #### biosample_xml
-Template for the xml files necessary to the BioSample loader in Tripal.
+Template for the xml files necessary for the BioSample loader in Tripal.
 
 #### fastaQual2fastq.pl
 Script to convert FASTA + QUAL files to FASTQ. Obtained from https://github.com/josephhughes/Sequence-manipulation/blob/master/fastaQual2fastq.pl
