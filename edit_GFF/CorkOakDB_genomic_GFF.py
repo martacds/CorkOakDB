@@ -1,5 +1,7 @@
 # SCRIPT TO EDIT THE GENOMIC.GFF FILE TO THE SPECIFIC REQUIREMENTS OF CORKOAKDB
-### changes mRNA to transcript
+# Marta Silva, 2020
+
+### changes mRNA, tRNA, rRNA, lnc_RNA, snRNA, snoRNA to transcript
 ### adds polypeptide line w/ CDS info
 ### adds descriptions to polypeptides from previous literature
 ### adds matching EST IDs from old portal to transcripts
