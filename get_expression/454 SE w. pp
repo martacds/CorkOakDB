@@ -13,9 +13,7 @@
 # featureCounts : outputs raw counts of alignment
 # stringtie : outputs TPM/FPKM counts
 #
-#
-# Marta Silva, ITQB
-# marcsilva@itqb.unl.pt
+# Marta Silva, 2019
 #
 ############# CONFIGURATION #############
 #
